@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Rank & Rent Research System</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: #0d1117;
+    color: #e6edf3;
+    min-height: 100vh;
+  }
+
+  header {
+    background: #161b22;
+    border-bottom: 1px solid #30363d;
+    padding: 20px 32px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  header .logo { font-size: 22px; }
+  header h1 { font-size: 18px; font-weight: 600; color: #fff; }
+  header p { font-size: 13px; color: #8b949e; margin-top: 2px; }
+
+  .container { max-width: 900px; margin: 0 auto; padding: 32px 24px; }
+
+  .form-card {
+    background: #161b22;
+    border: 1px solid #30363d;
+    border-radius: 12px;
+    padding: 28px;
+    margin-bottom: 28px;
+  }
+  .form-card h2 { font-size: 15px; font-weight: 600; color: #58a6ff; margin-bottom: 20px; }
+
+  .form-row { display: flex; gap: 16px; flex-wrap: wrap; align-items: flex-end; }
+  .form-group { flex: 1; min-width: 180px; }
+  .form-group label { display: block; font-size: 12px; font-weight: 600; color: #8b949e; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+  .form-group select, .form-group input {
+    width: 100%;
+    background: #0d1117;
+    border: 1px solid #30363d;
+    border-radius: 8px;
+    color: #e6edf3;
+    font-size: 14px;
+    padding: 10px 14px;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .form-group select:focus, .form-group input:focus { border-color: #58a6ff; }
+
+  .btn-run {
+    background: #238636;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 11px 28px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s;
+    white-space: nowrap;
+  }
+  .btn-run:hover { background: #2ea043; }
+  .btn-run:disabled { background: #30363d; color: #8b949e; cursor: not-allowed; }
+
+  /* Phase cards */
+  .phases { display: flex; flex-direction: column; gap: 16px; }
+
+  .phase-card {
+    background: #161b22;
+    border: 1px solid #30363d;
+    border-radius: 12px;
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+  .phase-card.running { border-color: #d29922; }
+  .phase-card.complete { border-color: #238636; }
+  .phase-card.skipped { border-color: #30363d; opacity: 0.6; }
+  .phase-card.error { border-color: #da3633; }
+
+  .phase-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 20px;
+    cursor: pointer;
+    user-select: none;
+  }
+  .phase-header:hover { background: rgba(255,255,255,0.03); }
+
+  .phase-icon { font-size: 18px; width: 24px; text-align: center; }
+  .phase-title { font-size: 14px; font-weight: 600; flex: 1; }
+  .phase-status {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 20px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .status-waiting { background: #21262d; color: #8b949e; }
+  .status-running { background: #3d2e00; color: #d29922; }
+  .status-complete { background: #0d2119; color: #3fb950; }
+  .status-skipped { background: #21262d; color: #8b949e; }
+  .status-error { background: #2d1117; color: #f85149; }
+
+  .phase-spinner {
+    width: 14px; height: 14px;
+    border: 2px solid #d29922;
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    display: none;
+  }
+  .running .phase-spinner { display: block; }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .phase-body {
+    display: none;
+    padding: 0 20px 20px;
+  }
+  .phase-body.open { display: block; }
+
+  .phase-output {
+    background: #0d1117;
+    border: 1px solid #21262d;
+    border-radius: 8px;
+    padding: 16px;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 12px;
+    line-height: 1.7;
+    color: #c9d1d9;
+    white-space: pre-wrap;
+    word-break: break-word;
+    max-height: 500px;
+    overflow-y: auto;
+  }
+
+  .copy-btn {
+    background: transparent;
+    border: 1px solid #30363d;
+    color: #8b949e;
+    border-radius: 6px;
+    padding: 5px 12px;
+    font-size: 12px;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: all 0.15s;
+  }
+  .copy-btn:hover { border-color: #58a6ff; color: #58a6ff; }
+  .copy-btn.copied { border-color: #238636; color: #3fb950; }
+
+  .verdict-badge {
+    display: inline-block;
+    font-size: 18px;
+    font-weight: 700;
+    padding: 8px 20px;
+    border-radius: 8px;
+    margin-bottom: 12px;
+  }
+  .go { background: #0d2119; color: #3fb950; border: 1px solid #238636; }
+  .nogo { background: #2d1117; color: #f85149; border: 1px solid #da3633; }
+  .borderline { background: #3d2e00; color: #d29922; border: 1px solid #9e6a03; }
+
+  .info-bar {
+    background: #161b22;
+    border: 1px solid #30363d;
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-size: 13px;
+    color: #8b949e;
+    margin-bottom: 20px;
+    display: none;
+  }
+  .info-bar.show { display: block; }
+
+  .chevron { font-size: 12px; color: #8b949e; transition: transform 0.2s; }
+  .phase-header.open .chevron { transform: rotate(180deg); }
+
+  .cached-badge {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.8px;
+    color: #58a6ff;
+    background: #0d2340;
+    border: 1px solid #1f6feb;
+    border-radius: 4px;
+    padding: 2px 7px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">🏠</div>
+  <div>
+    <h1>Rank & Rent Research System</h1>
+    <p>Flat Fee Mastery / Digital Landlords — Automated Due Diligence</p>
+  </div>
+</header>
+
+<div class="container">
+
+  <!-- Input Form -->
+  <div class="form-card">
+    <h2>NEW MARKET RESEARCH</h2>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Niche</label>
+        <select id="niche">
+          <option value="">Select niche...</option>
+          <option value="concrete">Concrete</option>
+          <option value="fencing">Fencing</option>
+          <option value="tree service">Tree Service</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>State</label>
+        <select id="state">
+          <option value="">Select state...</option>
+          <option value="FL">Florida (FL)</option>
+          <option value="TX">Texas (TX)</option>
+          <option value="AZ">Arizona (AZ)</option>
+          <option value="NV">Nevada (NV)</option>
+          <option value="TN">Tennessee (TN)</option>
+          <option value="SC">South Carolina (SC)</option>
+          <option value="UT">Utah (UT)</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>City (optional)</label>
+        <input type="text" id="city" placeholder="Leave blank to auto-find" />
+      </div>
+      <button class="btn-run" id="runBtn" onclick="startResearch()">Run Research</button>
+    </div>
+  </div>
+
+  <!-- Status Bar -->
+  <div class="info-bar" id="infoBar">
+    <span id="infoText">Running research...</span>
+  </div>
+
+  <!-- Phase Cards -->
+  <div class="phases" id="phases" style="display:none;">
+
+    <div class="phase-card" id="card-keywords">
+      <div class="phase-header" onclick="toggleCard('keywords')">
+        <div class="phase-icon">🔑</div>
+        <div class="phase-title">Phase 1 — Keyword Research</div>
+        <span class="cached-badge" id="cached-badge" style="display:none;">CACHED</span>
+        <div class="phase-spinner"></div>
+        <div class="phase-status status-waiting" id="status-keywords">Waiting</div>
+        <div class="chevron">▼</div>
+      </div>
+      <div class="phase-body" id="body-keywords">
+        <div class="phase-output" id="output-keywords">...</div>
+        <button class="copy-btn" onclick="copyOutput('keywords')">Copy</button>
+      </div>
+    </div>
+
+    <div class="phase-card" id="card-cities">
+      <div class="phase-header" onclick="toggleCard('cities')">
+        <div class="phase-icon">🗺️</div>
+        <div class="phase-title">Phase 2 — City Selection</div>
+        <div class="phase-spinner"></div>
+        <div class="phase-status status-waiting" id="status-cities">Waiting</div>
+        <div class="chevron">▼</div>
+      </div>
+      <div class="phase-body" id="body-cities">
+        <div class="phase-output" id="output-cities">...</div>
+        <button class="copy-btn" onclick="copyOutput('cities')">Copy</button>
+      </div>
+    </div>
+
+    <div class="phase-card" id="card-competitors">
+      <div class="phase-header" onclick="toggleCard('competitors')">
+        <div class="phase-icon">🔍</div>
+        <div class="phase-title">Phase 3 — Competitor Identification</div>
+        <div class="phase-spinner"></div>
+        <div class="phase-status status-waiting" id="status-competitors">Waiting</div>
+        <div class="chevron">▼</div>
+      </div>
+      <div class="phase-body" id="body-competitors">
+        <div class="phase-output" id="output-competitors">...</div>
+        <button class="copy-btn" onclick="copyOutput('competitors')">Copy</button>
+      </div>
+    </div>
+
+    <div class="phase-card" id="card-analysis">
+      <div class="phase-header" onclick="toggleCard('analysis')">
+        <div class="phase-icon">📊</div>
+        <div class="phase-title">Phase 4 — Due Diligence & Verdict</div>
+        <div class="phase-spinner"></div>
+        <div class="phase-status status-waiting" id="status-analysis">Waiting</div>
+        <div class="chevron">▼</div>
+      </div>
+      <div class="phase-body" id="body-analysis">
+        <div id="verdict-badge"></div>
+        <div class="phase-output" id="output-analysis">...</div>
+        <button class="copy-btn" onclick="copyOutput('analysis')">Copy</button>
+      </div>
+    </div>
+
+    <div class="phase-card" id="card-prospects">
+      <div class="phase-header" onclick="toggleCard('prospects')">
+        <div class="phase-icon">📞</div>
+        <div class="phase-title">Phase 5 — Prospect List</div>
+        <div class="phase-spinner"></div>
+        <div class="phase-status status-waiting" id="status-prospects">Waiting</div>
+        <div class="chevron">▼</div>
+      </div>
+      <div class="phase-body" id="body-prospects">
+        <div class="phase-output" id="output-prospects">...</div>
+        <button class="copy-btn" onclick="copyOutput('prospects')">Copy</button>
+      </div>
+    </div>
+
+    <div class="phase-card" id="card-adcopy">
+      <div class="phase-header" onclick="toggleCard('adcopy')">
+        <div class="phase-icon">📝</div>
+        <div class="phase-title">Phase 7 — Ad Copy</div>
+        <div class="phase-spinner"></div>
+        <div class="phase-status status-waiting" id="status-adcopy">Waiting</div>
+        <div class="chevron">▼</div>
+      </div>
+      <div class="phase-body" id="body-adcopy">
+        <div class="phase-output" id="output-adcopy">...</div>
+        <button class="copy-btn" onclick="copyOutput('adcopy')">Copy</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const phases = ['keywords', 'cities', 'competitors', 'analysis', 'prospects', 'adcopy'];
+const cachedNiches = ['concrete', 'fencing', 'tree service'];
+let outputs = {};
+
+function startResearch() {
+  const niche = document.getElementById('niche').value;
+  const state = document.getElementById('state').value;
+  const city = document.getElementById('city').value.trim();
+
+  if (!niche || !state) {
+    alert('Please select a niche and state.');
+    return;
+  }
+
+  // Reset UI
+  document.getElementById('phases').style.display = 'flex';
+  document.getElementById('infoBar').classList.add('show');
+  document.getElementById('runBtn').disabled = true;
+  outputs = {};
+
+  phases.forEach(p => {
+    setStatus(p, 'waiting', 'Waiting');
+    document.getElementById('output-' + p).textContent = '...';
+    document.getElementById('card-' + p).className = 'phase-card';
+    const body = document.getElementById('body-' + p);
+    body.classList.remove('open');
+    document.querySelector('#card-' + p + ' .phase-header').classList.remove('open');
+  });
+  document.getElementById('verdict-badge').innerHTML = '';
+  document.getElementById('cached-badge').style.display = 'none';
+
+  // Show cached badge if this niche has pre-loaded keywords
+  if (cachedNiches.includes(niche)) {
+    document.getElementById('cached-badge').style.display = 'inline';
+  }
+
+  const body = { niche, state };
+  if (city) body.city = city;
+  updateInfo(`Running ${niche} research in ${state}${city ? ' — ' + city : ''}...`);
+
+  const evtSource = new EventSource('/api/run?' + new URLSearchParams());
+
+  // Use fetch + ReadableStream for POST
+  startStream(body);
+}
+
+async function startStream(body) {
+  try {
+    const resp = await fetch('/api/run', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+
+    const reader = resp.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = '';
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split('\n');
+      buffer = lines.pop();
+      for (const line of lines) {
+        if (line.startsWith('data: ')) {
+          try {
+            const msg = JSON.parse(line.slice(6));
+            handleMessage(msg);
+          } catch {}
+        }
+      }
+    }
+  } catch (err) {
+    updateInfo('Connection error: ' + err.message);
+    document.getElementById('runBtn').disabled = false;
+  }
+}
+
+function handleMessage(msg) {
+  const { phase, status, data } = msg;
+
+  if (phase === 'ping') return;
+
+  if (phase === 'done') {
+    updateInfo('Research complete! All phases finished.');
+    document.getElementById('runBtn').disabled = false;
+    return;
+  }
+
+  if (phase === 'error') {
+    updateInfo('Error: ' + data);
+    document.getElementById('runBtn').disabled = false;
+    return;
+  }
+
+  if (!phases.includes(phase)) return;
+
+  const card = document.getElementById('card-' + phase);
+  const output = document.getElementById('output-' + phase);
+
+  if (status === 'running') {
+    setStatus(phase, 'running', 'Running...');
+    card.className = 'phase-card running';
+    updateInfo('Running: ' + phaseLabel(phase) + '...');
+    // Auto-open running card
+    openCard(phase);
+  } else if (status === 'complete') {
+    setStatus(phase, 'complete', 'Complete');
+    card.className = 'phase-card complete';
+    output.textContent = data;
+    outputs[phase] = data;
+    // Handle verdict badge
+    if (phase === 'analysis') showVerdict(data);
+    openCard(phase);
+  } else if (status === 'skipped') {
+    setStatus(phase, 'skipped', 'Skipped');
+    card.className = 'phase-card skipped';
+    output.textContent = data;
+  }
+}
+
+function setStatus(phase, cls, text) {
+  const el = document.getElementById('status-' + phase);
+  el.className = 'phase-status status-' + cls;
+  el.textContent = text;
+}
+
+function openCard(phase) {
+  const body = document.getElementById('body-' + phase);
+  const header = document.querySelector('#card-' + phase + ' .phase-header');
+  body.classList.add('open');
+  header.classList.add('open');
+}
+
+function toggleCard(phase) {
+  const body = document.getElementById('body-' + phase);
+  const header = document.querySelector('#card-' + phase + ' .phase-header');
+  body.classList.toggle('open');
+  header.classList.toggle('open');
+}
+
+function showVerdict(text) {
+  const badge = document.getElementById('verdict-badge');
+  if (text.includes('GO ✅') && !text.includes('NO-GO')) {
+    badge.innerHTML = '<div class="verdict-badge go">✅ GO — Market Qualifies</div>';
+  } else if (text.includes('NO-GO') || text.includes('NO GO')) {
+    badge.innerHTML = '<div class="verdict-badge nogo">🚫 NO-GO — Find Another City</div>';
+  } else if (text.includes('BORDERLINE')) {
+    badge.innerHTML = '<div class="verdict-badge borderline">⚠️ BORDERLINE — Review Carefully</div>';
+  }
+}
+
+function copyOutput(phase) {
+  const text = outputs[phase] || document.getElementById('output-' + phase).textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.querySelector(`#card-${phase} .copy-btn`);
+    btn.textContent = 'Copied!';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+  });
+}
+
+function updateInfo(msg) {
+  document.getElementById('infoText').textContent = msg;
+}
+
+function phaseLabel(p) {
+  const labels = {
+    keywords: 'Keyword Research',
+    cities: 'City Selection',
+    competitors: 'Competitor Identification',
+    analysis: 'Market Analysis',
+    prospects: 'Prospect List',
+    adcopy: 'Ad Copy',
+  };
+  return labels[p] || p;
+}
+</script>
+</body>
+</html>
