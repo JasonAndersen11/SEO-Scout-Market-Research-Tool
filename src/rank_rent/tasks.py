@@ -62,13 +62,21 @@ PRIMARY KEYWORD (strongest for city checks): [keyword]
 
 def city_selection_task(agent, state: str, keyword_output: str) -> Task:
     city_suggestions = {
-        "FL": "Ocala, Lakeland, Daytona Beach, Cape Coral, Gainesville, Pensacola, Tallahassee, Port St. Lucie, Deltona, Palm Bay, Kissimmee, Doral, Sanford, Leesburg",
-        "TX": "Lubbock, Laredo, Amarillo, Waco, Midland, Odessa, Round Rock, Lewisville, Killeen, Beaumont, Allen, Frisco, McKinney, Carrollton, Pearland",
-        "AZ": "Gilbert, Chandler, Glendale, Tempe, Surprise, Avondale, Peoria, Goodyear, Yuma, Flagstaff, Prescott, Casa Grande, Maricopa, Queen Creek, Buckeye",
-        "NV": "Henderson, Reno, Sparks, North Las Vegas, Carson City, Enterprise, Spring Valley, Sunrise Manor",
-        "TN": "Murfreesboro, Knoxville, Chattanooga, Clarksville, Jackson, Franklin, Smyrna, Hendersonville, Brentwood",
-        "SC": "Columbia, Greenville, Spartanburg, Rock Hill, Mount Pleasant, Summerville, Goose Creek, Myrtle Beach, Florence",
-        "UT": "Provo, Ogden, St. George, Orem, West Jordan, West Valley City, Sandy, South Jordan, Lehi, Draper",
+        "FL": "Ocala, Lakeland, Cape Coral, Gainesville, Pensacola, Port St. Lucie, Palm Bay, Kissimmee, Leesburg, Sarasota, Melbourne, Daytona Beach",
+        "TX": "Lubbock, Amarillo, Waco, Midland, Killeen, Beaumont, McKinney, Pearland, Abilene, Tyler, Longview, Lewisville",
+        "GA": "Marietta, Augusta, Columbus, Savannah, Macon, Warner Robins, Athens, Kennesaw, Smyrna, Valdosta, Woodstock, Newnan",
+        "NC": "Fayetteville, Concord, Gastonia, High Point, Wilmington, Burlington, Greenville, Huntersville, Jacksonville, Kannapolis, Hickory, Wilson",
+        "AZ": "Gilbert, Surprise, Avondale, Peoria, Goodyear, Yuma, Prescott, Casa Grande, Maricopa, Queen Creek, Kingman, Lake Havasu City",
+        "TN": "Murfreesboro, Knoxville, Chattanooga, Clarksville, Jackson, Smyrna, Hendersonville, Johnson City, Cookeville, Spring Hill, Columbia, Maryville",
+        "SC": "Columbia, Greenville, Spartanburg, Rock Hill, Summerville, Myrtle Beach, Florence, Aiken, Conway, Greer, Lexington, Anderson",
+        "AL": "Huntsville, Mobile, Tuscaloosa, Dothan, Auburn, Decatur, Madison, Florence, Phenix City, Prattville, Alabaster, Athens",
+        "LA": "Shreveport, Lafayette, Lake Charles, Bossier City, Monroe, Alexandria, Slidell, New Iberia, Houma, Hammond, Zachary, Ruston",
+        "NV": "Henderson, Reno, Sparks, North Las Vegas, Carson City, Pahrump, Fernley, Elko, Mesquite, Boulder City, Fallon, Laughlin",
+        "VA": "Chesapeake, Newport News, Hampton, Roanoke, Lynchburg, Fredericksburg, Charlottesville, Suffolk, Harrisonburg, Danville, Manassas, Blacksburg",
+        "OK": "Norman, Broken Arrow, Edmond, Lawton, Moore, Stillwater, Enid, Muskogee, Owasso, Bixby, Bartlesville, Shawnee",
+        "UT": "Provo, Ogden, St. George, Orem, West Jordan, Sandy, South Jordan, Lehi, Draper, Clearfield, Layton, Riverton",
+        "AR": "Fort Smith, Fayetteville, Springdale, Jonesboro, Conway, Rogers, Bentonville, Hot Springs, Benton, Bryant, Russellville, Searcy",
+        "MS": "Gulfport, Biloxi, Hattiesburg, Southaven, Tupelo, Meridian, Olive Branch, Clinton, Pearl, Madison, Brandon, Starkville",
     }
     suggestions = city_suggestions.get(state.upper(), f"major cities in {state} with 50,000–250,000 population")
 
@@ -85,19 +93,23 @@ CRITERIA — BOTH must pass or city is REJECTED:
   $0 CPC = REJECT IMMEDIATELY
   $5.00+ CPC = REJECT IMMEDIATELY
 
-CITIES TO CHECK in {state} (start here, check at least 10):
+CITIES TO CHECK in {state} (check in this order):
 {suggestions}
 
 AVOID: Major metros (Orlando, Tampa, Miami, Dallas, Phoenix, Las Vegas, Nashville, Houston)
 PREFER: Cities 50,000–250,000 population
 
-PROCESS:
+PROCESS — follow this EXACTLY:
 1. Take the PRIMARY KEYWORD from the keyword output above
-2. For each city, use Semrush City Keyword Check: "[primary keyword] [City] [State]"
-3. Record result for each city (Volume, CPC, PASS/FAIL)
-4. Check at least 10 cities before selecting finalists
-5. Select 2–3 that pass BOTH criteria
-6. Recommend the strongest one (best volume in the $0.01–$4.99 CPC range)
+2. Check cities ONE AT A TIME in the order listed above using Semrush City Keyword Check:
+   - keyword = the PRIMARY KEYWORD
+   - city = the city name
+   - state = {state} (2-letter abbreviation)
+3. Record Volume and CPC for each city checked
+4. The tool will return a PASS or FAIL — trust the tool's verdict exactly
+5. *** STOP IMMEDIATELY once you have found 3 cities that PASS *** — do NOT check more cities
+6. If you reach the end of the list with fewer than 3 passes, report what you found
+7. Recommend the strongest qualifying city (highest volume within the CPC range)
 
 Output format:
 ---
@@ -120,10 +132,24 @@ REJECTED CITIES:
 RECOMMENDATION: Proceed with [City], {state}
 NEXT STEP: Competitor research in [City], {state}
 ---
+
+IF NO CITIES PASS BOTH CRITERIA — output this exact block instead of the above:
+---
+CITY RESEARCH — {state.upper()}
+NO QUALIFYING CITIES FOUND
+
+All cities checked failed on CPC ($0 or $5+) or volume (<30).
+
+REJECTED CITIES:
+[list every city checked with: Volume, CPC, reason for rejection]
+
+RECOMMENDATION: No qualifying cities in {state}. Try a different state.
+---
 """,
         expected_output=(
             "A list of 2–3 qualifying cities with volume and CPC data, "
-            "all rejected cities with reasons, and a clear recommendation."
+            "all rejected cities with reasons, and a clear recommendation. "
+            "If no cities qualify, output 'NO QUALIFYING CITIES FOUND' with all rejected cities listed."
         ),
         agent=agent,
     )
@@ -133,61 +159,88 @@ def competitor_identification_task(agent, niche: str, city: str, state: str, key
     return Task(
         description=f"""
 Identify the top 3 Map 3-pack competitors for '{niche}' in {city}, {state}.
+Follow the Flat Fee Mastery market research process exactly.
 
 Keyword list from previous phase:
 {keyword_output}
 
-Extract the 5–7 core keywords from the keyword output above.
+Extract the 5–6 core keywords from the keyword output above.
 
 LOCATION STRING to use in every search: "{city}, {state}, United States"
 
-RUN THESE SEARCHES using Google Location Search tool:
-For each of the 5 top core keywords, run 2 variations:
-  Variation A: [keyword] {city} {state}
-  Variation B: {city} {state} [keyword]
+═══════════════════════════════════════════════════
+STEP 1 — RUN 10+ SEARCHES (5 keywords × 2 variations each)
+═══════════════════════════════════════════════════
+For each of the 5–6 core keywords, run BOTH variations:
+  Variation A: [keyword] {city} {state}         ← e.g. "concrete contractors {city} {state}"
+  Variation B: {city} {state} [keyword]         ← e.g. "{city} {state} concrete contractors"
 
-Example for concrete in Ocala FL:
-  "concrete contractors Ocala FL" + "Ocala FL concrete contractors"
-  "concrete company Ocala FL" + "Ocala FL concrete company"
-  etc.
-
-Run at least 10 searches total (5 keywords × 2 variations).
+Run ALL 10+ searches. Do not skip any.
 
 FOR EACH SEARCH, RECORD:
-- Which businesses appear in MAPS 3-PACK
-- Whether each has a website or "NO WEBSITE" (NO WEBSITE = MASSIVE GREEN FLAG ✅)
-- Which businesses appear in GOOGLE ADS section (these are TOP PRIORITY PROSPECTS)
-- Do NOT count: Yelp, HomeAdvisor, Angi, BBB, Home Depot, Thumbtack
+- Which businesses appear in the MAPS 3-PACK (ignore Yelp, HomeAdvisor, Angi, BBB, Thumbtack)
+- Whether each business has a website or "NO WEBSITE" (NO WEBSITE = MASSIVE GREEN FLAG ✅)
+- Which businesses appear in the GOOGLE ADS / SPONSORED section (priority prospects)
 
-TALLY: Track how many times each REAL local business appears across all searches.
-Top 3 = businesses appearing most consistently (4+ times is strong signal).
+═══════════════════════════════════════════════════
+STEP 2 — TALLY & IDENTIFY TOP 3
+═══════════════════════════════════════════════════
+Count how many times each REAL local business appeared across all searches.
+PRIMARY THRESHOLD: A business appearing 4+ times = top competitor.
+FALLBACK: If no business hits 4+, use 3+ as the threshold.
+POSITIVE SIGNAL: If results are totally inconsistent (different companies every search with
+  no overlap) — that is a GREEN FLAG. It means Google has no reliable go-to in this market.
+  There is a vacancy. Note this explicitly.
+
+If you cannot find 3 map competitors, supplement with ORGANIC results (the regular blue links
+below the map). Pick the first REAL company website — not an aggregator.
+
+═══════════════════════════════════════════════════
+STEP 3 — CHECK ORGANIC PAGE 1 PRESENCE
+═══════════════════════════════════════════════════
+For each of your top 3 competitors that HAS a website, run one more search:
+  Search: [their domain] + [primary keyword] + {city}
+  OR search the primary keyword and check if their domain appears in the blue organic links.
+
+Note for each competitor: DO THEY APPEAR on page 1 organically? YES or NO.
+If NONE of the top 3 rank organically on page 1 → STRONG GO SIGNAL ✅
+If ALL 3 rank organically on page 1 → RED FLAG 🚫 (real entrenched competition)
 
 Output format:
 ---
 COMPETITOR RESEARCH — {niche.upper()} | {city.upper()}, {state.upper()}
 
+SEARCHES RUN: [list all 10+ search queries]
+
 TOP 3 COMPETITORS (Maps 3-Pack):
 1. [Business Name]
    Website: [URL] or NO WEBSITE ✅ GREEN FLAG
-   Appeared in: [X] of 10 searches
-   Notes: [anything notable]
+   Appeared in: [X] of [total] searches
+   Ranks organically page 1: YES / NO
+   Notes: [anything notable — old phone number, out-of-area, thin site, etc.]
 
 2. [Business Name]
    Website: [URL] or NO WEBSITE ✅ GREEN FLAG
-   Appeared in: [X] of 10 searches
+   Appeared in: [X] of [total] searches
+   Ranks organically page 1: YES / NO
    Notes: [anything notable]
 
 3. [Business Name]
    Website: [URL] or NO WEBSITE ✅ GREEN FLAG
-   Appeared in: [X] of 10 searches
+   Appeared in: [X] of [total] searches
+   Ranks organically page 1: YES / NO
    Notes: [anything notable]
 
-GOOGLE ADS ADVERTISERS FOUND (Priority Prospects for calling):
+GOOGLE ADS ADVERTISERS FOUND (Priority Prospects for Phase 5):
 - [Business Name] | [URL]
 - [Business Name] | [URL]
 
-INITIAL SIGNALS:
-[Brief 2–3 sentence summary of what you observed — strong market? weak? any obvious green flags?]
+ORGANIC RANKING SUMMARY:
+[X] of 3 competitors rank on page 1 organically.
+[STRONG GO SIGNAL ✅ / CAUTION ⚠️ / RED FLAG 🚫] — [one sentence explanation]
+
+INITIAL MARKET SIGNALS:
+[2–3 sentence summary — strong market? weak? any obvious green flags like no websites?]
 
 DOMAINS TO ANALYZE IN NEXT PHASE:
 Competitor 1 domain: [domain.com]
@@ -197,6 +250,7 @@ Competitor 3 domain: [domain.com or "NO WEBSITE"]
 """,
         expected_output=(
             "Top 3 Map 3-pack competitors with websites (or no website noted), "
+            "appearance tally across all searches, organic page 1 check for each, "
             "Google Ads advertisers found, and domains ready for analysis."
         ),
         agent=agent,
@@ -207,47 +261,49 @@ def market_analysis_task(agent, niche: str, city: str, state: str, competitor_ou
     return Task(
         description=f"""
 Analyze the competitors identified for '{niche}' in {city}, {state} and deliver a GO/NO-GO verdict.
+Follow the Flat Fee Mastery due diligence process — 4 metrics per competitor.
 
 Competitor research from previous phase:
 {competitor_output}
 
-For EACH competitor with a website, run ALL FOUR of these tools:
-1. Domain Age Checker — get domain age in years
-2. Semrush Backlinks — get total backlinks and referring domains
-3. Semrush Domain Analysis — get organic keywords and traffic
-4. Website Content Analyzer — check page count and word count
+═══════════════════════════════════════════════════
+FOR EACH COMPETITOR WITH A WEBSITE — run all 4 checks:
+═══════════════════════════════════════════════════
 
-For competitors with NO WEBSITE: score as MAXIMUM GREEN FLAG ✅ — skip the tools.
+METRIC 1 — DOMAIN AGE:
+  Use Domain Age Checker tool. Record year created and age in years.
+  ✅ 0–2 years = EASY | ⚠️ 2–5 years = Moderate | ⚠️ 5–10 years = Harder | 🚫 10+ years = Red Flag
 
-SCORING THRESHOLDS (apply exactly):
+METRIC 2 — BACKLINKS:
+  Use Semrush Backlinks tool. Record total backlinks and referring domains.
+  ✅ 0–10 = Very Weak (easy to beat) | ⚠️ 11–50 = Moderate | ⚠️ 51–97 = Heavy | 🚫 98+ = Red Flag
+  Note: foreign/spammy links are worthless — quality matters more than count.
 
-DOMAIN AGE:
-  ✅ 0–2 years = EASY
-  ⚠️  2–5 years = Moderate
-  ⚠️  5–10 years = Harder
-  🚫 10+ years = Red Flag
+METRIC 3 — CONTENT DEPTH:
+  Use Website Content Analyzer. Count pages and check word count.
+  ✅ 1–3 pages, thin content = Green | ⚠️ 4–9 pages = Moderate | 🚫 10+ service pages = Red Flag
 
-BACKLINKS:
-  ✅ 0–10 = Very Weak (easy to beat)
-  ⚠️  11–50 = Moderate
-  ⚠️  51–97 = Heavy
-  🚫 98+ = Red Flag
+METRIC 4 — ORGANIC PAGE 1 PRESENCE:
+  Use Google Location Search to verify whether this competitor's domain appears
+  in the organic blue-link results (below the map) for your primary keyword in {city}.
+  Search: "[primary niche keyword] {city} {state}" and look for their domain.
+  ✅ NOT on page 1 organically = Green Flag | 🚫 Appearing on page 1 = Red Flag
 
-CONTENT DEPTH:
-  ✅ No website = Massive Green
-  ✅ 1–3 pages, thin content = Green
-  ⚠️  4–9 pages = Moderate
-  🚫 10+ service pages = Red Flag
+FOR COMPETITORS WITH NO WEBSITE:
+  Skip all 4 tools. Score as MAXIMUM GREEN FLAG ✅ across all metrics.
+  No website = they are ranking purely by default. You will leapfrog them immediately.
 
-ORGANIC PRESENCE (from Semrush Domain Analysis):
-  ✅ Low/zero organic keywords = NOT ranking = Green Flag
-  🚫 High organic keywords + high traffic = Ranking well = Red Flag
-
-GO/NO-GO RULES:
-  GO ✅: Overwhelming majority green — especially no websites, young domains, few backlinks
-  NO-GO 🚫: Any of — all 3 on page 1, all domains 10+yr, heavy quality backlinks everywhere
-  BORDERLINE ⚠️: Mixed signals — explain reasoning, lean toward NO unless very close to GO
-  RULE: If it's not an overwhelming YES — it's a NO.
+═══════════════════════════════════════════════════
+GO / NO-GO DECISION RULES (apply exactly):
+═══════════════════════════════════════════════════
+GO ✅:   Overwhelming majority green — especially: no websites, young domains (0–2yr),
+         very few backlinks (0–10), thin/no content, NOT ranking organically.
+NO-GO 🚫: ANY of these is disqualifying:
+         - ALL 3 competitors rank on page 1 organically for majority of keywords
+         - ALL domains are 10+ years old
+         - Heavy quality backlink profiles across all 3 competitors (50+ each)
+BORDERLINE ⚠️: Mixed signals — explain clearly, lean NO unless it is very close to GO.
+RULE: If it's not an overwhelming YES — it's a NO. Find another city.
 
 Output this EXACT scorecard format:
 ---
@@ -257,12 +313,12 @@ Output this EXACT scorecard format:
 ╚══════════════════════════════════════════════════════╝
 
 COMPETITOR 1: [Business Name]
-Domain: [URL or NO WEBSITE]
-Domain Age: [X years] — [EASY ✅ / MODERATE ⚠️ / HARDER ⚠️ / RED FLAG 🚫]
-Backlinks: [X total] ([X] referring domains) — [score]
-Organic Keywords: [X] — [score]
-Content Depth: [X pages, ~X words] — [score]
-Overall: [WEAK ✅ / MODERATE ⚠️ / STRONG 🚫]
+Domain: [URL or NO WEBSITE ✅]
+Domain Age: [X years, created YYYY] — [EASY ✅ / MODERATE ⚠️ / HARDER ⚠️ / RED FLAG 🚫]
+Backlinks: [X total] ([X] referring domains) — [VERY WEAK ✅ / MODERATE ⚠️ / HEAVY ⚠️ / RED FLAG 🚫]
+Content Depth: [X pages, ~X words] — [GREEN ✅ / MODERATE ⚠️ / RED FLAG 🚫]
+Ranks on Page 1 Organically: [YES 🚫 / NO ✅]
+Overall Threat Level: [WEAK ✅ / MODERATE ⚠️ / STRONG 🚫]
 
 COMPETITOR 2: [Business Name]
 [same format]
@@ -271,20 +327,25 @@ COMPETITOR 3: [Business Name]
 [same format]
 
 ──────────────────────────────────────────────────────
+ORGANIC RANKING SUMMARY:
+[X] of 3 competitors found on page 1 organically.
+[STRONG GO SIGNAL ✅ / CAUTION ⚠️ / DISQUALIFYING RED FLAG 🚫]
+
 MARKET VERDICT: [GO ✅ / NO-GO 🚫 / BORDERLINE ⚠️]
 
-REASONING: [2–3 sentences explaining the verdict based on data]
+REASONING: [2–3 sentences citing specific data — which green flags tipped the scale]
 
-CONTENT BENCHMARK: Top competitor has ~[X] words on homepage and [X] pages.
-When you build your site: aim for ~[2X] words and [X+3] pages minimum.
+CONTENT BENCHMARK: Top competitor has ~[X] words on their homepage and [X] total pages indexed.
+To beat them: aim for ~[2X] words and at least [X+3] pages on your site.
 
 [If GO] NEXT STEP: Build prospect list for {city}, {state}
-[If NO-GO] NEXT STEP: Try [next city from qualifying list]
+[If NO-GO] NEXT STEP: Try the next qualifying city from the city research phase.
 ──────────────────────────────────────────────────────
 ---
 """,
         expected_output=(
-            "Complete due diligence scorecard with all 3 competitors scored, "
+            "Complete 4-metric due diligence scorecard for all 3 competitors "
+            "(domain age, backlinks, content depth, organic page 1 ranking), "
             "GO/NO-GO verdict with reasoning, and content benchmark."
         ),
         agent=agent,
@@ -313,12 +374,20 @@ Run searches for each core keyword + city + state:
 Look at "GOOGLE ADS (Sponsored)" section in each result.
 Record every advertiser domain.
 
+⚠️ NEVER CLICK ON GOOGLE ADS — type the advertiser's URL directly into the browser bar.
+Clicking an ad costs them money and will poison the relationship before you even call.
+The tool returns URLs from the API so you can type them directly — always do this.
+
 For each domain found:
 - Use Website Content Analyzer to vet the company (60-second check)
 - SKIP if: lead gen aggregator, wrong city/state, commercial-only, wrong niche, general contractor
 - ADD if: real local residential contractor, mentions {city}, performs the specific service
 
-Also search: "homeadvisor {niche} {city} {state}" to find HomeAdvisor advertisers.
+Also search these to find more advertisers (in priority order):
+- "homeadvisor {niche} {city} {state}"
+- "angi {niche} {city} {state}"
+- "thumbtack {niche} {city} {state}"
+- "yelp {niche} {city} {state}"
 
 For each ADDED company:
 - Record their phone number from their website
@@ -412,9 +481,17 @@ CAMPAIGN SETTINGS:
 AD SET SETTINGS:
   Ad set name: top performers/winners
   Lead type: Instant Forms
-  Dynamic Creative: ON
+  Dynamic Creative: ON  ← turn ON at the AD SET level only
   Location: {city} + 15–20 mile radius
   Placements: Advantage+ Placements ON
+
+AD SETTINGS (inside the ad set):
+  Dynamic Creative: OFF  ← must be OFF at the individual ad level
+  CTA button: Get Quote  ← use exactly this CTA on every ad
+
+CREATIVE ASSETS (user must prepare before launching):
+  Images: 3 square images at 600×600px — use real job photos, before/after shots, or team photos
+  Do NOT use stock photos — authentic local images perform best
 
 PRIMARY TEXT — Write 3 variations:
 

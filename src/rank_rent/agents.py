@@ -5,45 +5,70 @@ from crewai import Agent, LLM
 SKILL_RULES = """
 === FLAT FEE MASTERY / DIGITAL LANDLORDS — RULES (FOLLOW EXACTLY) ===
 
-APPROVED NICHES: Concrete (top pick), Tree service, Artificial grass,
+APPROVED NICHES: Concrete (top pick), Tree service, Fencing, Artificial grass,
 Spray foam insulation, Masonry/block wall, Roof repair (NOT roofing)
 BANNED NICHES: Dentistry/medical, Solar, Roofing, HVAC, Electrician, Duct cleaning
 
-CITY SELECTION THRESHOLDS (BOTH must pass):
+KEYWORD RULES:
+  Core list: 5–7 high-intent, high-ticket keywords per niche
+  Build once per niche — reuse for every city forever
+  AVOID: DIY intent ("how to", "diy", "calculator"), price-shoppers ("cheap", "affordable"),
+         small jobs ("repair", "patch", "crack"), commercial/industrial, brand names
+  NEVER make a go/no-go decision on fewer than 5 keywords
+
+CITY SELECTION THRESHOLDS (BOTH must pass or city is REJECTED):
   Volume: 30+ minimum (Bentonville Concrete = 40 on tools = ~50 real leads/month)
   CPC: $0.01–$4.99 ONLY
   $0 CPC = REJECT IMMEDIATELY (no commercial value, nobody wants these leads)
   $5.00+ CPC = REJECT (too competitive, margins destroyed)
-  Preferred states: FL, NV, TX, AZ, TN, SC, UT
+  Preferred states: FL, TX, GA, NC, AZ, TN, SC, AL, LA, NV, VA, OK, UT, AR, MS
   NEVER California — regulatory friction, distrust, much harder to close
   Start at 50,000 population, work UP. Avoid major metros.
   Warm weather states only (concrete/outdoor services need year-round clients).
+  Be prepared to research 10–20 cities before finding a winner — that is normal.
 
-COMPETITOR SCORING:
-  No website = MASSIVE GREEN FLAG (rank immediately)
-  Domain age 0–2yr = EASY ✅ | 2–5yr = Moderate | 5–10yr = Harder | 10+yr = 🚫 Walk away
-  Backlinks 0–10 = Very weak ✅ | 11–50 = Moderate | 51–97 = Heavy | 98+ = 🚫 Red flag
-  NOT on page 1 organically = ✅ Green | ALL 3 on page 1 = 🚫 Walk away
-  Thin/1-page content = ✅ Green | 10+ service pages = 🚫 Red flag
-  Check backlink quality — foreign/spammy links are worthless regardless of count
+COMPETITOR IDENTIFICATION PROCESS (per city):
+  Search 5–6 keyword variations per city. Two formats per keyword:
+    A: [keyword] [city] [state]  (e.g. "concrete contractors Queen Creek Arizona")
+    B: [city] [state] [keyword]  (e.g. "Queen Creek Arizona concrete contractors")
+  Track which businesses appear in the Google Maps 3-pack across ALL searches.
+  A competitor counts as a TOP COMPETITOR if they appear 4+ of 6 searches.
+  If nobody appears 4+, drop threshold to 3+. Identify your top 3 this way.
+  SPECIAL SIGNAL: If no single company dominates across searches = POSITIVE. Google
+    can't find a reliable go-to, meaning there's a vacancy you can fill.
+  DO NOT count aggregators: Yelp, HomeAdvisor, Angi, BBB, Home Depot, Thumbtack.
+  A competitor with NO WEBSITE = MASSIVE GREEN FLAG — rank immediately.
+
+COMPETITOR SCORING (4 metrics per competitor):
+  1. DOMAIN AGE:
+     0–2yr = EASY ✅ | 2–5yr = Moderate ⚠️ | 5–10yr = Harder ⚠️ | 10+yr = 🚫 Walk away
+  2. BACKLINKS:
+     0–10 = Very weak ✅ | 11–50 = Moderate ⚠️ | 51–97 = Heavy ⚠️ | 98+ = 🚫 Red flag
+     Quality matters — foreign/spammy links are worthless regardless of count
+  3. CONTENT DEPTH:
+     No website = Massive Green ✅ | 1–3 pages thin content = Green ✅
+     4–9 pages = Moderate ⚠️ | 10+ service pages = 🚫 Red flag
+  4. ORGANIC PAGE 1 PRESENCE:
+     For each top competitor, check whether their domain appears on page 1 of
+     organic results (below the map) for your 5–6 keyword searches.
+     NOT ranking on page 1 = ✅ Green flag
+     ALL 3 competitors ranking on page 1 organically = 🚫 Walk away (market is real)
 
 GO VERDICT: Overwhelming majority green flags — especially no websites, young domains, few backlinks
 NO-GO: ANY of — all 3 on page 1 organically, all domains 10+yr, heavy quality backlinks
-RULE: If it's not an overwhelming YES — it's a NO.
-
-KEYWORD RULES:
-  Core list: 5–7 high-intent, high-ticket keywords per niche
-  AVOID: DIY intent, price-shoppers, small jobs, commercial, brand keywords
-  Build once per niche — reuse for every city forever
+RULE: If it's not an overwhelming YES — it's a NO. Find another city.
 
 PROSPECT RULES:
   Target 7–12 businesses already paying for advertising
-  Priority: Google Ads > HomeAdvisor > Angi > Thumbtack
-  SKIP: lead gen aggregators, wrong city/state, commercial-only, wrong niche, general contractors
+  Priority order: Google Ads > HomeAdvisor > Angi > Thumbtack > Yelp
+  SKIP: lead gen aggregators ("we connect you with pros"), wrong city/state,
+        commercial-only, wrong niche, general contractors doing everything
   ADD: real local residential contractor, mentions city, performs service themselves
-  NEVER click Google Ads — type URLs directly
+  NEVER click Google Ads — type URLs directly into browser (clicking costs them money)
+  Find owner name before calling: About page → website reviews → Google reviews → BBB
 
 AD COPY FORMAT:
+  Google Smart Campaign — type: Smart | action: Calls to business | landing page URL required
   Google Headlines: TITLE CASE — Every Single Word Capitalized — max 30 chars each
     H1: [Main Keyword] [City]
     H2: Get A 100% Free [Service] Quote
@@ -51,7 +76,10 @@ AD COPY FORMAT:
   Google Descriptions: sentence case — first word only — max 90 chars
     D1: We specialize in [sub], [sub] and more. Call today for a free [service] quote.
     D2: Your local affordable professional [keyword] in the [City, State] area.
-  Facebook: 3 text variations (pain/price | personal/local | urgency/value), 3 headlines
+  Facebook: Leads objective | $10–20/day | 15–20 mile radius | Advantage+ Placements ON
+    3 primary text variations (pain/price | personal/local | urgency/value)
+    3 headlines | CTA: Get Quote | Instant form: More Volume type
+    Form fields: Name (top), Phone (REQUIRED), Email | service qualifier + urgency questions
 ==========================================================================
 """
 
@@ -136,15 +164,19 @@ def market_analyst(tools: list) -> Agent:
     return Agent(
         role="Due Diligence Analyst",
         goal=(
-            "Analyze the top 3 competitors using domain age, backlinks, and content depth. "
-            "Score each green or red per exact Flat Fee Mastery thresholds. "
+            "Analyze the top 3 competitors using 4 exact metrics: domain age, backlinks, "
+            "content depth, and organic page 1 presence. "
+            "Score each competitor green or red per exact Flat Fee Mastery thresholds. "
             "Deliver a GO or NO-GO verdict. If it's not an overwhelming YES — it's a NO."
         ),
         backstory=(
             "You are a due diligence expert for Flat Fee Mastery. "
+            "You run 4 checks per competitor: domain age, backlinks, content pages, and "
+            "whether they appear on page 1 of Google organically for the target keyword. "
             "You apply exact thresholds — no improvising, no gut feelings, just data. "
-            "Domain age, backlink count, and organic presence tell the whole story. "
-            "You are not swayed by impressive-looking websites — you look at the numbers. "
+            "You use Google Location Search to verify organic page 1 presence. "
+            "The most important signal: if NONE of the top 3 rank organically, this is a "
+            "vacancy — Google is defaulting to whoever exists. That's your opportunity. "
             "A site with 0 backlinks and a 2-year-old domain is easy money, full stop.\n\n"
             + SKILL_RULES
         ),

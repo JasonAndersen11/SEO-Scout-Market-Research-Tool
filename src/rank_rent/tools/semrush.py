@@ -3,6 +3,7 @@ import requests
 from crewai.tools import BaseTool
 from pydantic import BaseModel, Field
 from typing import Type
+from src.rank_rent.city_cache import get as cache_get, put as cache_put
 
 SEMRUSH_BASE = "https://api.semrush.com/"
 SEMRUSH_ANALYTICS = "https://api.semrush.com/analytics/v1/"
@@ -137,10 +138,18 @@ class SemrushCityKeywordTool(BaseTool):
     args_schema: Type[BaseModel] = CityKeywordInput
 
     def _run(self, keyword: str, city: str, state: str) -> str:
+        state = state.strip().upper()
+
+        # Check persistent cache before hitting the API
+        cached = cache_get(keyword, city, state)
+        if cached:
+            return cached + "\n[CACHED — no Semrush units used]"
+
         phrases_to_try = [
-            f"{keyword} {city} {state}",
-            f"{keyword} {city}",
+            f"{keyword} {city} {state}",   # e.g. "concrete contractors Ocala FL"
+            f"{keyword} {city}",           # e.g. "concrete contractors Ocala"
         ]
+
         for phrase in phrases_to_try:
             params = {
                 "type": "phrase_this",
@@ -172,22 +181,56 @@ class SemrushCityKeywordTool(BaseTool):
                     else:
                         status = "PASS ✅"
 
-                    return (
+                    result = (
                         f"City: {city}, {state}\n"
                         f"Keyword checked: {r.get('Keyword', phrase)}\n"
                         f"Monthly Volume: {vol}\n"
                         f"CPC: ${cpc:.2f}\n"
                         f"Result: {status}"
                     )
-            except Exception as e:
+                    # Store real API result — never re-check this city again
+                    cache_put(keyword, city, state, result)
+                    return result
+            except Exception:
                 continue
+
+        # Semrush returned nothing (likely zero API units).
+        # Stub realistic-looking varied data so the pipeline can be tested end-to-end.
+        # Remove this block and rerun once Semrush units are restocked.
+        seed = sum(ord(c) for c in city)
+        bucket = seed % 5   # 0-4
+
+        if bucket == 0:
+            # FAIL — volume too low
+            vol, cpc = 18, 1.85
+        elif bucket == 1:
+            # FAIL — CPC too high
+            vol, cpc = 55, 6.20
+        elif bucket == 2:
+            # FAIL — $0 CPC
+            vol, cpc = 40, 0.00
+        elif bucket == 3:
+            # PASS — strong
+            vol, cpc = 70, 3.10
+        else:
+            # PASS — borderline
+            vol, cpc = 40, 1.45
+
+        if vol < 30:
+            status = f"FAIL — volume too low ({vol} < 30 minimum)"
+        elif cpc == 0.0:
+            status = "FAIL — $0 CPC means no commercial value"
+        elif cpc >= 5.0:
+            status = f"FAIL — CPC ${cpc:.2f} too high (max $4.99)"
+        else:
+            status = "PASS ✅"
 
         return (
             f"City: {city}, {state}\n"
-            f"Keyword: {keyword}\n"
-            f"Monthly Volume: 0\n"
-            f"CPC: $0.00\n"
-            f"Result: FAIL — no Semrush data found (volume too low or city too small)"
+            f"Keyword: {keyword} {city} {state}\n"
+            f"Monthly Volume: {vol} [STUB]\n"
+            f"CPC: ${cpc:.2f} [STUB]\n"
+            f"Result: {status} [STUB — rerun after restocking Semrush units]"
         )
 
 

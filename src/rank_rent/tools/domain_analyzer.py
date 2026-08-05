@@ -135,10 +135,10 @@ class WebsiteContentTool(BaseTool):
                 content_score = "LEAD GEN AGGREGATOR 🚫 — Skip as prospect"
             elif page_count <= 3:
                 content_score = "THIN ✅ (Green Flag — easy to beat)"
-            elif page_count <= 8:
+            elif page_count <= 9:
                 content_score = "MODERATE ⚠️"
             else:
-                content_score = "SUBSTANTIAL 🚫 (Red Flag — well-built site)"
+                content_score = "SUBSTANTIAL 🚫 (Red Flag — well-built site, 10+ pages)"
 
             return (
                 f"URL: {url}\n"

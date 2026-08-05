@@ -67,6 +67,36 @@
   .btn-run:hover { background: #2ea043; }
   .btn-run:disabled { background: #30363d; color: #8b949e; cursor: not-allowed; }
 
+  .btn-stop {
+    background: #da3633;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 11px 28px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s;
+    white-space: nowrap;
+    display: none;
+  }
+  .btn-stop:hover { background: #f85149; }
+
+  .btn-resume {
+    background: #1f6feb;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 11px 28px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s;
+    white-space: nowrap;
+    display: none;
+  }
+  .btn-resume:hover { background: #388bfd; }
+
   /* Phase cards */
   .phases { display: flex; flex-direction: column; gap: 16px; }
 
@@ -155,6 +185,22 @@
   .copy-btn:hover { border-color: #58a6ff; color: #58a6ff; }
   .copy-btn.copied { border-color: #238636; color: #3fb950; }
 
+  .export-btn {
+    background: #238636;
+    border: 1px solid #2ea043;
+    color: #fff;
+    border-radius: 6px;
+    padding: 5px 14px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 10px;
+    margin-left: 8px;
+    transition: all 0.15s;
+  }
+  .export-btn:hover { background: #2ea043; }
+  .export-btn:disabled { background: #21262d; color: #8b949e; border-color: #30363d; cursor: not-allowed; }
+
   .verdict-badge {
     display: inline-block;
     font-size: 18px;
@@ -178,6 +224,36 @@
     display: none;
   }
   .info-bar.show { display: block; }
+  .info-bar.warn { border-color: #9e6a03; background: #2a1f00; color: #d29922; }
+
+  .next-state-bar {
+    background: #0d2340;
+    border: 1px solid #1f6feb;
+    border-radius: 8px;
+    padding: 14px 18px;
+    font-size: 13px;
+    color: #79c0ff;
+    margin-bottom: 20px;
+    display: none;
+    align-items: center;
+    gap: 14px;
+    flex-wrap: wrap;
+  }
+  .next-state-bar.show { display: flex; }
+  .next-state-bar span { flex: 1; }
+  .btn-next-state {
+    background: #1f6feb;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 9px 20px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.15s;
+  }
+  .btn-next-state:hover { background: #388bfd; }
 
   .chevron { font-size: 12px; color: #8b949e; transition: transform 0.2s; }
   .phase-header.open .chevron { transform: rotate(180deg); }
@@ -192,6 +268,229 @@
     border-radius: 4px;
     padding: 2px 7px;
   }
+
+  /* ── Structured rendered views ─────────────────────────── */
+  .phase-rendered { display: none; }
+
+  .rendered-section {
+    background: #0d1117;
+    border: 1px solid #21262d;
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 12px;
+  }
+  .rendered-section-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: #58a6ff;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    margin-bottom: 14px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #21262d;
+  }
+  .copy-group-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: #8b949e;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin: 14px 0 7px;
+  }
+  .copy-rule { font-weight: 400; text-transform: none; letter-spacing: 0; color: #6e7681; }
+
+  .ad-copy-box {
+    background: #161b22;
+    border: 1px solid #30363d;
+    border-radius: 6px;
+    margin-bottom: 8px;
+    overflow: hidden;
+  }
+  .box-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 5px 10px;
+    background: #21262d;
+    border-bottom: 1px solid #30363d;
+  }
+  .box-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: #58a6ff;
+    min-width: 22px;
+  }
+  .count-ok  { font-size: 11px; color: #6e7681; margin-left: auto; }
+  .count-near { font-size: 11px; color: #d29922; margin-left: auto; font-weight: 600; }
+  .count-over { font-size: 11px; color: #f85149; margin-left: auto; font-weight: 600; }
+  .inline-copy-btn {
+    background: transparent;
+    border: 1px solid #30363d;
+    color: #8b949e;
+    border-radius: 4px;
+    padding: 2px 9px;
+    font-size: 11px;
+    cursor: pointer;
+    margin-left: auto;
+    transition: all 0.15s;
+  }
+  .box-label ~ .inline-copy-btn { margin-left: 0; }
+  .inline-copy-btn:hover { border-color: #58a6ff; color: #58a6ff; }
+  .box-text {
+    padding: 10px 12px;
+    font-size: 13px;
+    color: #e6edf3;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
+  .info-block {
+    background: #161b22;
+    border: 1px solid #30363d;
+    border-radius: 6px;
+    padding: 10px 12px;
+    font-size: 12px;
+    color: #c9d1d9;
+    line-height: 1.7;
+    white-space: pre-wrap;
+  }
+
+  /* ── Prospect cards ─────────────────────────────────────── */
+  .prospects-grid { display: flex; flex-direction: column; gap: 10px; }
+  .prospect-card {
+    background: #0d1117;
+    border: 1px solid #21262d;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .prospect-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 14px;
+    background: #161b22;
+    border-bottom: 1px solid #21262d;
+    flex-wrap: wrap;
+  }
+  .prospect-num {
+    font-size: 11px;
+    font-weight: 700;
+    color: #58a6ff;
+    background: #0d2340;
+    border: 1px solid #1f6feb;
+    border-radius: 4px;
+    padding: 2px 6px;
+    flex-shrink: 0;
+  }
+  .prospect-name { font-size: 14px; font-weight: 600; color: #e6edf3; flex: 1; }
+  .found-via-badge {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.4px;
+    padding: 2px 8px;
+    border-radius: 10px;
+    flex-shrink: 0;
+  }
+  .fvb-google  { background: #0d2119; color: #3fb950; border: 1px solid #238636; }
+  .fvb-ha      { background: #2d0a00; color: #ff7b72; border: 1px solid #da3633; }
+  .fvb-angi    { background: #2d0a00; color: #ffb27a; border: 1px solid #bd4f00; }
+  .fvb-tt      { background: #0d2340; color: #79c0ff; border: 1px solid #1f6feb; }
+  .fvb-yelp    { background: #3d1500; color: #ffa657; border: 1px solid #bd4f00; }
+  .fvb-default { background: #21262d; color: #8b949e; border: 1px solid #30363d; }
+  .prospect-body { padding: 10px 14px; display: flex; flex-direction: column; gap: 6px; }
+  .pf { display: flex; align-items: flex-start; gap: 8px; font-size: 13px; color: #c9d1d9; }
+  .pfi { font-size: 14px; flex-shrink: 0; line-height: 1.5; }
+  .prospect-link { color: #58a6ff; text-decoration: none; }
+  .prospect-link:hover { text-decoration: underline; }
+  .prospect-phone { color: #3fb950; text-decoration: none; font-weight: 600; font-size: 14px; }
+  .prospect-phone:hover { text-decoration: underline; }
+  .pf-notes { color: #8b949e; font-size: 12px; }
+
+  /* ── Due Diligence cards ─────────────────────────────────── */
+  .dd-reasoning {
+    font-size: 13px;
+    color: #c9d1d9;
+    line-height: 1.6;
+    background: #0d1117;
+    border: 1px solid #21262d;
+    border-radius: 6px;
+    padding: 10px 14px;
+    margin-bottom: 14px;
+  }
+  .comp-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+  }
+  @media (max-width: 680px) { .comp-grid { grid-template-columns: 1fr; } }
+  .comp-card {
+    background: #0d1117;
+    border: 1px solid #21262d;
+    border-radius: 8px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  .comp-header { padding: 10px 12px; background: #161b22; border-bottom: 1px solid #21262d; }
+  .comp-num {
+    font-size: 10px;
+    font-weight: 700;
+    color: #8b949e;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: block;
+  }
+  .comp-name { font-size: 13px; font-weight: 600; color: #e6edf3; display: block; margin-top: 3px; }
+  .comp-domain { font-size: 11px; color: #58a6ff; display: block; margin-top: 4px; }
+  .no-website-flag {
+    display: inline-block;
+    margin-top: 4px;
+    font-size: 11px;
+    font-weight: 700;
+    color: #3fb950;
+    background: #0d2119;
+    border: 1px solid #238636;
+    border-radius: 4px;
+    padding: 2px 6px;
+  }
+  .comp-metrics { padding: 10px 12px; display: flex; flex-direction: column; gap: 8px; flex: 1; }
+  .metric-row { display: flex; flex-direction: column; gap: 2px; }
+  .metric-label {
+    font-size: 10px;
+    font-weight: 700;
+    color: #6e7681;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+  .metric-val { font-size: 12px; color: #c9d1d9; line-height: 1.4; }
+  .mc-green .metric-val { color: #3fb950; }
+  .mc-red   .metric-val { color: #f85149; }
+  .mc-yellow .metric-val { color: #d29922; }
+  .comp-threat {
+    padding: 7px 12px;
+    font-size: 12px;
+    font-weight: 600;
+    text-align: center;
+    border-top: 1px solid #21262d;
+  }
+  .threat-weak  { background: #0d2119; color: #3fb950; }
+  .threat-strong { background: #2d1117; color: #f85149; }
+  .threat-mod   { background: #3d2e00; color: #d29922; }
+
+  /* Raw toggle */
+  .raw-toggle {
+    display: none;
+    background: transparent;
+    border: none;
+    color: #6e7681;
+    font-size: 11px;
+    cursor: pointer;
+    padding: 4px 0;
+    margin-left: 12px;
+    text-decoration: underline;
+  }
+  .raw-toggle:hover { color: #58a6ff; }
 </style>
 </head>
 <body>
@@ -225,11 +524,19 @@
           <option value="">Select state...</option>
           <option value="FL">Florida (FL)</option>
           <option value="TX">Texas (TX)</option>
+          <option value="GA">Georgia (GA)</option>
+          <option value="NC">North Carolina (NC)</option>
           <option value="AZ">Arizona (AZ)</option>
-          <option value="NV">Nevada (NV)</option>
           <option value="TN">Tennessee (TN)</option>
           <option value="SC">South Carolina (SC)</option>
+          <option value="AL">Alabama (AL)</option>
+          <option value="LA">Louisiana (LA)</option>
+          <option value="NV">Nevada (NV)</option>
+          <option value="VA">Virginia (VA)</option>
+          <option value="OK">Oklahoma (OK)</option>
           <option value="UT">Utah (UT)</option>
+          <option value="AR">Arkansas (AR)</option>
+          <option value="MS">Mississippi (MS)</option>
         </select>
       </div>
       <div class="form-group">
@@ -237,12 +544,20 @@
         <input type="text" id="city" placeholder="Leave blank to auto-find" />
       </div>
       <button class="btn-run" id="runBtn" onclick="startResearch()">Run Research</button>
+      <button class="btn-stop" id="stopBtn" onclick="stopResearch()">Stop</button>
+      <button class="btn-resume" id="resumeBtn" onclick="resumeResearch()">&#9654; Resume</button>
     </div>
   </div>
 
   <!-- Status Bar -->
   <div class="info-bar" id="infoBar">
     <span id="infoText">Running research...</span>
+  </div>
+
+  <!-- Next State Suggestion -->
+  <div class="next-state-bar" id="nextStateBar">
+    <span id="nextStateText"></span>
+    <button class="btn-next-state" id="nextStateBtn" onclick="tryNextState()"></button>
   </div>
 
   <!-- Phase Cards -->
@@ -301,8 +616,12 @@
       </div>
       <div class="phase-body" id="body-analysis">
         <div id="verdict-badge"></div>
+        <div class="phase-rendered" id="rendered-analysis"></div>
         <div class="phase-output" id="output-analysis">...</div>
-        <button class="copy-btn" onclick="copyOutput('analysis')">Copy</button>
+        <div style="display:flex;align-items:center;margin-top:10px;gap:4px;">
+          <button class="copy-btn" onclick="copyOutput('analysis')">Copy</button>
+          <button class="raw-toggle" id="rawtoggle-analysis" onclick="toggleRaw('analysis')">Show raw text ↓</button>
+        </div>
       </div>
     </div>
 
@@ -315,22 +634,31 @@
         <div class="chevron">▼</div>
       </div>
       <div class="phase-body" id="body-prospects">
+        <div class="phase-rendered" id="rendered-prospects"></div>
         <div class="phase-output" id="output-prospects">...</div>
-        <button class="copy-btn" onclick="copyOutput('prospects')">Copy</button>
+        <div style="display:flex;align-items:center;margin-top:10px;gap:4px;flex-wrap:wrap;">
+          <button class="copy-btn" onclick="copyOutput('prospects')">Copy</button>
+          <button class="export-btn" id="exportBtn" onclick="exportProspects()" disabled>⬇ Export Excel</button>
+          <button class="raw-toggle" id="rawtoggle-prospects" onclick="toggleRaw('prospects')">Show raw text ↓</button>
+        </div>
       </div>
     </div>
 
     <div class="phase-card" id="card-adcopy">
       <div class="phase-header" onclick="toggleCard('adcopy')">
         <div class="phase-icon">📝</div>
-        <div class="phase-title">Phase 7 — Ad Copy</div>
+        <div class="phase-title">Phase 6 — Ad Copy</div>
         <div class="phase-spinner"></div>
         <div class="phase-status status-waiting" id="status-adcopy">Waiting</div>
         <div class="chevron">▼</div>
       </div>
       <div class="phase-body" id="body-adcopy">
+        <div class="phase-rendered" id="rendered-adcopy"></div>
         <div class="phase-output" id="output-adcopy">...</div>
-        <button class="copy-btn" onclick="copyOutput('adcopy')">Copy</button>
+        <div style="display:flex;align-items:center;margin-top:10px;gap:4px;">
+          <button class="copy-btn" onclick="copyOutput('adcopy')">Copy all</button>
+          <button class="raw-toggle" id="rawtoggle-adcopy" onclick="toggleRaw('adcopy')">Show raw text ↓</button>
+        </div>
       </div>
     </div>
 
@@ -340,7 +668,21 @@
 <script>
 const phases = ['keywords', 'cities', 'competitors', 'analysis', 'prospects', 'adcopy'];
 const cachedNiches = ['concrete', 'fencing', 'tree service'];
+
+// Priority order for state suggestions — best rank-and-rent markets first
+const STATE_PRIORITY = ['FL','TX','GA','NC','AZ','TN','SC','AL','LA','NV','VA','OK','UT','AR','MS'];
+const STATE_NAMES = {
+  FL:'Florida', TX:'Texas', GA:'Georgia', NC:'North Carolina', AZ:'Arizona',
+  TN:'Tennessee', SC:'South Carolina', AL:'Alabama', LA:'Louisiana', NV:'Nevada',
+  VA:'Virginia', OK:'Oklahoma', UT:'Utah', AR:'Arkansas', MS:'Mississippi',
+};
+
 let outputs = {};
+let currentController = null;
+let resumeState = {};   // completed phase outputs, keyed by phase name
+let lastRequest = null; // original niche/state/city for resume
+let triedStates = new Set(); // states already searched this session
+let pendingNextState = null; // state code queued for the next-state button
 
 function startResearch() {
   const niche = document.getElementById('niche').value;
@@ -352,13 +694,96 @@ function startResearch() {
     return;
   }
 
+  resumeState = {};
+  lastRequest = { niche, state };
+  if (city) lastRequest.city = city;
+  triedStates.add(state);
+
   // Reset UI
   document.getElementById('phases').style.display = 'flex';
+  document.getElementById('infoBar').classList.remove('warn');
   document.getElementById('infoBar').classList.add('show');
+  document.getElementById('nextStateBar').classList.remove('show');
   document.getElementById('runBtn').disabled = true;
+  document.getElementById('stopBtn').style.display = 'inline-block';
+  document.getElementById('resumeBtn').style.display = 'none';
   outputs = {};
 
   phases.forEach(p => {
+    setStatus(p, 'waiting', 'Waiting');
+    const outEl = document.getElementById('output-' + p);
+    outEl.textContent = '...';
+    outEl.style.display = 'block';
+    document.getElementById('card-' + p).className = 'phase-card';
+    const body = document.getElementById('body-' + p);
+    body.classList.remove('open');
+    document.querySelector('#card-' + p + ' .phase-header').classList.remove('open');
+  });
+  ['analysis', 'prospects', 'adcopy'].forEach(p => {
+    const r = document.getElementById('rendered-' + p);
+    if (r) { r.innerHTML = ''; r.style.display = 'none'; }
+    const tog = document.getElementById('rawtoggle-' + p);
+    if (tog) tog.style.display = 'none';
+  });
+  document.getElementById('verdict-badge').innerHTML = '';
+  document.getElementById('cached-badge').style.display = 'none';
+  document.getElementById('exportBtn').disabled = true;
+  document.getElementById('exportBtn').textContent = '⬇ Export Excel';
+
+  if (cachedNiches.includes(niche)) {
+    document.getElementById('cached-badge').style.display = 'inline';
+  }
+
+  updateInfo(`Running ${niche} research in ${state}${city ? ' — ' + city : ''}...`);
+  startStream(lastRequest);
+}
+
+async function stopResearch() {
+  document.getElementById('stopBtn').style.display = 'none';
+  updateInfo('Stopping after current phase...');
+  await fetch('/api/stop', { method: 'POST' });
+  if (currentController) currentController.abort();
+}
+
+function showNextStateSuggestion(failedState) {
+  const next = STATE_PRIORITY.find(s => !triedStates.has(s));
+  if (!next) return; // tried everything
+  pendingNextState = next;
+  const failedName = STATE_NAMES[failedState] || failedState;
+  const nextName = STATE_NAMES[next] || next;
+  document.getElementById('nextStateText').textContent =
+    `No qualifying cities found in ${failedName}. The next best market to check is ${nextName}.`;
+  document.getElementById('nextStateBtn').textContent = `Try ${nextName} →`;
+  document.getElementById('nextStateBar').classList.add('show');
+}
+
+function tryNextState() {
+  if (!pendingNextState || !lastRequest) return;
+  document.getElementById('nextStateBar').classList.remove('show');
+  // Pre-fill the state dropdown
+  document.getElementById('state').value = pendingNextState;
+  // Clear city — let the system find one in the new state
+  document.getElementById('city').value = '';
+  // Run with same niche, new state, keeping keywords from resume state
+  const niche = lastRequest.niche;
+  const state = pendingNextState;
+  triedStates.add(state);
+  resumeState = lastRequest.resume_state
+    ? { keywords: lastRequest.resume_state.keywords }
+    : resumeState.keywords ? { keywords: resumeState.keywords } : {};
+  lastRequest = { niche, state };
+  if (resumeState.keywords) lastRequest.resume_state = { keywords: resumeState.keywords };
+
+  document.getElementById('phases').style.display = 'flex';
+  document.getElementById('infoBar').classList.remove('warn');
+  document.getElementById('infoBar').classList.add('show');
+  document.getElementById('runBtn').disabled = true;
+  document.getElementById('stopBtn').style.display = 'inline-block';
+  document.getElementById('resumeBtn').style.display = 'none';
+
+  // Reset all phase cards except keywords (which is already complete/cached)
+  phases.forEach(p => {
+    if (p === 'keywords' && resumeState.keywords) return;
     setStatus(p, 'waiting', 'Waiting');
     document.getElementById('output-' + p).textContent = '...';
     document.getElementById('card-' + p).className = 'phase-card';
@@ -367,29 +792,35 @@ function startResearch() {
     document.querySelector('#card-' + p + ' .phase-header').classList.remove('open');
   });
   document.getElementById('verdict-badge').innerHTML = '';
-  document.getElementById('cached-badge').style.display = 'none';
 
-  // Show cached badge if this niche has pre-loaded keywords
-  if (cachedNiches.includes(niche)) {
-    document.getElementById('cached-badge').style.display = 'inline';
-  }
+  updateInfo(`Trying ${STATE_NAMES[state] || state} — searching for qualifying cities...`);
+  startStream(lastRequest);
+}
 
-  const body = { niche, state };
-  if (city) body.city = city;
-  updateInfo(`Running ${niche} research in ${state}${city ? ' — ' + city : ''}...`);
+async function resumeResearch() {
+  if (!lastRequest) return;
+  document.getElementById('runBtn').disabled = true;
+  document.getElementById('resumeBtn').style.display = 'none';
+  document.getElementById('stopBtn').style.display = 'inline-block';
+  updateInfo('Resuming research from where it left off...');
+  startStream({ ...lastRequest, resume_state: resumeState });
+}
 
-  const evtSource = new EventSource('/api/run?' + new URLSearchParams());
-
-  // Use fetch + ReadableStream for POST
-  startStream(body);
+function resetControls(showResume = false) {
+  document.getElementById('runBtn').disabled = false;
+  document.getElementById('stopBtn').style.display = 'none';
+  document.getElementById('resumeBtn').style.display = showResume ? 'inline-block' : 'none';
+  currentController = null;
 }
 
 async function startStream(body) {
+  currentController = new AbortController();
   try {
     const resp = await fetch('/api/run', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),
+      signal: currentController.signal,
     });
 
     const reader = resp.body.getReader();
@@ -411,9 +842,33 @@ async function startStream(body) {
         }
       }
     }
+    resetControls();
   } catch (err) {
-    updateInfo('Connection error: ' + err.message);
-    document.getElementById('runBtn').disabled = false;
+    if (err.name === 'AbortError') {
+      // Reset any still-spinning cards to "Stopped"
+      phases.forEach(p => {
+        const card = document.getElementById('card-' + p);
+        if (card.classList.contains('running')) {
+          card.className = 'phase-card';
+          setStatus(p, 'waiting', 'Stopped');
+        }
+      });
+      const canResume = lastRequest && Object.keys(resumeState).length > 0;
+      updateInfo(canResume
+        ? 'Stopped. Click Resume to continue from where it left off.'
+        : 'Research stopped.');
+      resetControls(canResume);
+    } else {
+      updateInfo('Connection error: ' + err.message);
+      phases.forEach(p => {
+        const card = document.getElementById('card-' + p);
+        if (card.classList.contains('running')) {
+          card.className = 'phase-card error';
+          setStatus(p, 'error', 'Error');
+        }
+      });
+      resetControls();
+    }
   }
 }
 
@@ -423,14 +878,45 @@ function handleMessage(msg) {
   if (phase === 'ping') return;
 
   if (phase === 'done') {
-    updateInfo('Research complete! All phases finished.');
-    document.getElementById('runBtn').disabled = false;
+    if (data === 'no_cities') {
+      const failedState = lastRequest ? lastRequest.state : '';
+      const failedName = STATE_NAMES[failedState] || failedState;
+      updateInfo(`No qualifying cities in ${failedName} — all checked cities failed on CPC or volume.`);
+      document.getElementById('infoBar').classList.add('warn');
+      showNextStateSuggestion(failedState);
+    } else {
+      updateInfo('Research complete! All phases finished.');
+    }
+    resetControls();
+    return;
+  }
+
+  if (phase === 'stopped') {
+    phases.forEach(p => {
+      const card = document.getElementById('card-' + p);
+      if (card.classList.contains('running')) {
+        card.className = 'phase-card';
+        setStatus(p, 'waiting', 'Stopped');
+      }
+    });
+    const canResume = lastRequest && Object.keys(resumeState).length > 0;
+    updateInfo(canResume
+      ? 'Stopped. Click Resume to continue from where it left off.'
+      : 'Research stopped.');
+    resetControls(canResume);
     return;
   }
 
   if (phase === 'error') {
     updateInfo('Error: ' + data);
-    document.getElementById('runBtn').disabled = false;
+    phases.forEach(p => {
+      const card = document.getElementById('card-' + p);
+      if (card.classList.contains('running')) {
+        card.className = 'phase-card error';
+        setStatus(p, 'error', 'Error');
+      }
+    });
+    resetControls();
     return;
   }
 
@@ -450,8 +936,15 @@ function handleMessage(msg) {
     card.className = 'phase-card complete';
     output.textContent = data;
     outputs[phase] = data;
+    resumeState[phase] = data;
     // Handle verdict badge
     if (phase === 'analysis') showVerdict(data);
+    if (phase === 'prospects') document.getElementById('exportBtn').disabled = false;
+    // Structured rendered view for phases 4, 5, 6
+    if (['analysis', 'prospects', 'adcopy'].includes(phase)) {
+      const html = renderPhaseOutput(phase, data);
+      if (html) showRendered(phase, html);
+    }
     openCard(phase);
   } else if (status === 'skipped') {
     setStatus(phase, 'skipped', 'Skipped');
@@ -515,6 +1008,336 @@ function phaseLabel(p) {
     adcopy: 'Ad Copy',
   };
   return labels[p] || p;
+}
+
+// ─── Structured Renderers ──────────────────────────────────────────────
+
+function renderPhaseOutput(phase, text) {
+  if (phase === 'adcopy')    return renderAdCopy(text);
+  if (phase === 'prospects') return renderProspects(text);
+  if (phase === 'analysis')  return renderDueDiligence(text);
+  return null;
+}
+
+function showRendered(phase, html) {
+  const rendered = document.getElementById('rendered-' + phase);
+  const raw      = document.getElementById('output-' + phase);
+  const toggle   = document.getElementById('rawtoggle-' + phase);
+  if (!rendered || !html) return;
+  rendered.innerHTML = html;
+  rendered.style.display = 'block';
+  raw.style.display = 'none';
+  if (toggle) toggle.style.display = 'inline';
+}
+
+function toggleRaw(phase) {
+  const raw      = document.getElementById('output-' + phase);
+  const rendered = document.getElementById('rendered-' + phase);
+  const btn      = document.getElementById('rawtoggle-' + phase);
+  const showingRaw = raw.style.display !== 'none';
+  raw.style.display      = showingRaw ? 'none'  : 'block';
+  rendered.style.display = showingRaw ? 'block' : 'none';
+  btn.textContent        = showingRaw ? 'Show raw text ↓' : 'Show structured view ↑';
+}
+
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+let _cbId = 0;
+function copyBox(label, text, maxLen) {
+  const id = 'cb' + (++_cbId);
+  const n  = text.length;
+  let countHtml = '';
+  if (maxLen) {
+    const cls = n > maxLen ? 'count-over' : n >= maxLen * 0.85 ? 'count-near' : 'count-ok';
+    countHtml = `<span class="${cls}">${n}/${maxLen}</span>`;
+  }
+  const labelHtml = label ? `<span class="box-label">${label}</span>` : '';
+  return `<div class="ad-copy-box">
+    <div class="box-header">${labelHtml}${countHtml}<button class="inline-copy-btn" onclick="copyBoxText('${id}')">Copy</button></div>
+    <div class="box-text" id="${id}">${escHtml(text)}</div>
+  </div>`;
+}
+
+function copyBoxText(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  navigator.clipboard.writeText(el.textContent.trim());
+  const btn = el.closest('.ad-copy-box').querySelector('.inline-copy-btn');
+  if (btn) { btn.textContent = '✓ Copied'; setTimeout(() => btn.textContent = 'Copy', 1500); }
+}
+
+function getField(block, field) {
+  const m = block.match(new RegExp(field + '[:\\s]+(.+)', 'i'));
+  return m ? m[1].trim() : '';
+}
+
+function cleanQ(s) { return s.replace(/^["'“”]+|["'“”]+$/g, '').trim(); }
+
+// ── Ad Copy ──────────────────────────────────────────────────────────────
+
+function renderAdCopy(text) {
+  const fbIdx  = text.search(/FACEBOOK\s*(?:\(META\))?\s*ADS?/i);
+  const googleText = fbIdx > 0 ? text.slice(0, fbIdx) : text;
+  const fbText     = fbIdx > 0 ? text.slice(fbIdx)    : '';
+
+  const html = [];
+
+  // Google section
+  const h1 = extractLine(googleText, /^\s*H1[:\s]+(.+)/im);
+  const h2 = extractLine(googleText, /^\s*H2[:\s]+(.+)/im);
+  const h3 = extractLine(googleText, /^\s*H3[:\s]+(.+)/im);
+  const d1 = extractLine(googleText, /^\s*D1[:\s]+(.+)/im);
+  const d2 = extractLine(googleText, /^\s*D2[:\s]+(.+)/im);
+
+  if (h1 || h2 || h3 || d1 || d2) {
+    html.push('<div class="rendered-section">');
+    html.push('<div class="rendered-section-title">🔍 Google Smart Campaign</div>');
+
+    if (h1 || h2 || h3) {
+      html.push('<div class="copy-group-label">Headlines <span class="copy-rule">— TITLE CASE · max 30 chars each</span></div>');
+      if (h1) html.push(copyBox('H1', cleanQ(h1), 30));
+      if (h2) html.push(copyBox('H2', cleanQ(h2), 30));
+      if (h3) html.push(copyBox('H3', cleanQ(h3), 30));
+    }
+    if (d1 || d2) {
+      html.push('<div class="copy-group-label">Descriptions <span class="copy-rule">— Sentence case · max 90 chars each</span></div>');
+      if (d1) html.push(copyBox('D1', cleanQ(d1), 90));
+      if (d2) html.push(copyBox('D2', cleanQ(d2), 90));
+    }
+
+    const kwm = googleText.match(/KEYWORD THEMES?[^:]*:([\s\S]+?)(?:SETTINGS:|FACEBOOK|$)/i);
+    if (kwm) {
+      html.push('<div class="copy-group-label">Keyword Themes</div>');
+      html.push(`<div class="info-block">${escHtml(kwm[1].trim())}</div>`);
+    }
+    html.push('</div>');
+  }
+
+  // Facebook section
+  if (fbText) {
+    html.push('<div class="rendered-section">');
+    html.push('<div class="rendered-section-title">📘 Facebook (Meta) Ads</div>');
+
+    // Primary texts
+    const varLabels = ['Pain / Price angle', 'Personal / Local angle', 'Urgency / Value angle'];
+    const varPat = /Variation\s+\d[^\n]*\n([\s\S]+?)(?=Variation\s+\d|HEADLINES?|INSTANT FORM|$)/gi;
+    let varM, varIdx = 0;
+    while ((varM = varPat.exec(fbText)) !== null && varIdx < 3) {
+      const content = cleanQ(varM[1].trim());
+      if (content) {
+        html.push(`<div class="copy-group-label">Primary Text ${varIdx + 1} <span class="copy-rule">— ${varLabels[varIdx]}</span></div>`);
+        html.push(copyBox(null, content, null));
+        varIdx++;
+      }
+    }
+
+    // Headlines
+    const hlSection = fbText.match(/HEADLINES?[^:]*:([\s\S]+?)(?:INSTANT FORM|CTA:|$)/i);
+    if (hlSection) {
+      const hls = [];
+      const hlPat = /^\s*\d\.\s*"?(.+?)"?\s*$/gm;
+      let hlM;
+      while ((hlM = hlPat.exec(hlSection[1])) !== null) hls.push(hlM[1].trim());
+      if (hls.length) {
+        html.push('<div class="copy-group-label">Headlines</div>');
+        hls.forEach((h, i) => html.push(copyBox(`H${i+1}`, h, null)));
+      }
+    }
+
+    // Instant form
+    const formM = fbText.match(/INSTANT FORM[^:]*:([\s\S]+?)$/i);
+    if (formM) {
+      html.push('<div class="copy-group-label">Instant Form Setup</div>');
+      html.push(`<div class="info-block">${escHtml(formM[1].trim())}</div>`);
+    }
+
+    html.push('</div>');
+  }
+
+  return html.length ? html.join('') : null;
+}
+
+function extractLine(text, pattern) {
+  const m = text.match(pattern);
+  return m ? m[1].trim() : null;
+}
+
+// ── Prospects ─────────────────────────────────────────────────────────────
+
+function renderProspects(text) {
+  const blocks = text.split(/\n(?=#\d+\s*[—\-])/);
+  const cards  = [];
+
+  for (const block of blocks) {
+    const b  = block.trim();
+    if (!b.match(/^#\d+/)) continue;
+    const nm = b.match(/^#(\d+)\s*[—\-]\s*(.+)/);
+    if (!nm) continue;
+
+    const num     = nm[1];
+    const name    = nm[2].trim();
+    const website = getField(b, 'Website');
+    const phone   = getField(b, 'Phone');
+    const foundVia = getField(b, 'Found Via');
+    const owner   = getField(b, 'Owner');
+    const notes   = getField(b, 'Notes');
+
+    const badge = foundVia ? fvBadge(foundVia) : '';
+
+    const phoneHtml = phone
+      ? `<a href="tel:${phone.replace(/\D/g,'')}" class="prospect-phone">${escHtml(phone)}</a>` : '';
+
+    let siteHtml = '';
+    if (website && !/^(n\/a|unknown|no website)$/i.test(website.trim())) {
+      const href = /^https?:\/\//.test(website) ? website : 'https://' + website;
+      siteHtml = `<a href="${href}" target="_blank" rel="noopener" class="prospect-link">${escHtml(website)}</a>`;
+    }
+
+    cards.push(`<div class="prospect-card">
+      <div class="prospect-header">
+        <span class="prospect-num">#${num}</span>
+        <span class="prospect-name">${escHtml(name)}</span>
+        ${badge}
+      </div>
+      <div class="prospect-body">
+        ${phoneHtml ? `<div class="pf"><span class="pfi">📞</span>${phoneHtml}</div>` : ''}
+        ${siteHtml  ? `<div class="pf"><span class="pfi">🌐</span>${siteHtml}</div>`  : ''}
+        ${owner     ? `<div class="pf"><span class="pfi">👤</span>${escHtml(owner)}</div>` : ''}
+        ${notes     ? `<div class="pf pf-notes"><span class="pfi">📝</span>${escHtml(notes)}</div>` : ''}
+      </div>
+    </div>`);
+  }
+
+  return cards.length ? `<div class="prospects-grid">${cards.join('')}</div>` : null;
+}
+
+function fvBadge(fv) {
+  const l = fv.toLowerCase();
+  let cls = 'fvb-default';
+  if (l.includes('google ads') || l.includes('google ad')) cls = 'fvb-google';
+  else if (l.includes('homeadvisor'))   cls = 'fvb-ha';
+  else if (l.includes('angi'))          cls = 'fvb-angi';
+  else if (l.includes('thumbtack'))     cls = 'fvb-tt';
+  else if (l.includes('yelp'))          cls = 'fvb-yelp';
+  return `<span class="found-via-badge ${cls}">${escHtml(fv)}</span>`;
+}
+
+// ── Due Diligence ────────────────────────────────────────────────────────
+
+function renderDueDiligence(text) {
+  const html = [];
+
+  // Reasoning summary
+  const rM = text.match(/REASONING[:\s]+(.+?)(?=\nCONTENT BENCHMARK|\n[─═]{4}|$)/is);
+  if (rM) {
+    html.push(`<div class="dd-reasoning"><strong>Reasoning:</strong> ${escHtml(rM[1].trim())}</div>`);
+  }
+
+  // Competitor blocks
+  const parts = text.split(/\n(?=COMPETITOR\s+\d)/i).filter(b => /COMPETITOR\s+\d/i.test(b));
+  if (parts.length) {
+    html.push('<div class="comp-grid">');
+    for (const block of parts) {
+      const titleM  = block.match(/COMPETITOR\s+(\d+)[:\s]+([^\n]*)/i);
+      const domain  = getField(block, 'Domain');
+      const domAge  = getField(block, 'Domain Age');
+      const backlinks = getField(block, 'Backlinks');
+      const content = getField(block, 'Content Depth');
+      const organic = getField(block, 'Ranks on Page 1 Organically') || getField(block, 'Ranks on Page 1');
+      const threat  = getField(block, 'Overall Threat Level');
+      const compNum  = titleM ? titleM[1] : '';
+      const compName = titleM ? titleM[2].trim() : '';
+      const noSite   = /NO WEBSITE/i.test(domain);
+
+      html.push(`<div class="comp-card">
+        <div class="comp-header">
+          <span class="comp-num">Competitor ${compNum}</span>
+          <span class="comp-name">${escHtml(compName)}</span>
+          ${noSite
+            ? '<span class="no-website-flag">NO WEBSITE ✅</span>'
+            : (domain ? `<span class="comp-domain">${escHtml(domain)}</span>` : '')}
+        </div>
+        <div class="comp-metrics">
+          ${mRow('Domain Age', domAge)}
+          ${mRow('Backlinks', backlinks)}
+          ${mRow('Content Depth', content)}
+          ${mRow('Page 1 Organic', organic)}
+        </div>
+        ${threat ? `<div class="comp-threat ${threatCls(threat)}">${escHtml(threat)}</div>` : ''}
+      </div>`);
+    }
+    html.push('</div>');
+  }
+
+  return html.length ? html.join('') : null;
+}
+
+function mRow(label, value) {
+  if (!value) return '';
+  const cls = mCls(value);
+  return `<div class="metric-row ${cls}">
+    <span class="metric-label">${label}</span>
+    <span class="metric-val">${escHtml(value)}</span>
+  </div>`;
+}
+
+function mCls(v) {
+  if (v.includes('✅') || /EASY|VERY WEAK|THIN|NOT RANKING|GREEN FLAG|MASSIVE GREEN/i.test(v)) return 'mc-green';
+  if (v.includes('🚫') || /RED FLAG|VERY HEAVY|SUBSTANTIAL|ESTABLISHED|YES.*RANK/i.test(v))   return 'mc-red';
+  if (v.includes('⚠️') || /MODERATE|HEAVY|HARDER/i.test(v)) return 'mc-yellow';
+  return '';
+}
+
+function threatCls(v) {
+  if (/WEAK|✅/i.test(v))   return 'threat-weak';
+  if (/STRONG|🚫/i.test(v)) return 'threat-strong';
+  return 'threat-mod';
+}
+
+async function exportProspects() {
+  const btn = document.getElementById('exportBtn');
+  const text = outputs['prospects'] || '';
+  if (!text) return;
+
+  btn.disabled = true;
+  btn.textContent = 'Exporting...';
+
+  try {
+    const resp = await fetch('/api/export-prospects', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        text,
+        niche: lastRequest ? lastRequest.niche : '',
+        city: lastRequest ? (lastRequest.city || '') : '',
+        state: lastRequest ? lastRequest.state : '',
+      }),
+    });
+
+    if (!resp.ok) {
+      const err = await resp.json();
+      alert('Export failed: ' + (err.error || resp.statusText));
+      return;
+    }
+
+    const blob = await resp.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    const cd = resp.headers.get('Content-Disposition') || '';
+    const fnMatch = cd.match(/filename="([^"]+)"/);
+    a.download = fnMatch ? fnMatch[1] : 'prospects.xlsx';
+    a.href = url;
+    a.click();
+    URL.revokeObjectURL(url);
+    btn.textContent = '✓ Downloaded';
+    setTimeout(() => { btn.textContent = '⬇ Export Excel'; btn.disabled = false; }, 3000);
+  } catch (e) {
+    alert('Export error: ' + e.message);
+    btn.textContent = '⬇ Export Excel';
+    btn.disabled = false;
+  }
 }
 </script>
 </body>
