@@ -3,511 +3,832 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Rank & Rent Research System</title>
+<title>RankRent AI — Automated Market Research</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    background: #0d1117;
-    color: #e6edf3;
-    min-height: 100vh;
-  }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-  header {
-    background: #161b22;
-    border-bottom: 1px solid #30363d;
-    padding: 20px 32px;
-    display: flex;
-    align-items: center;
-    gap: 16px;
-  }
-  header .logo { font-size: 22px; }
-  header h1 { font-size: 18px; font-weight: 600; color: #fff; }
-  header p { font-size: 13px; color: #8b949e; margin-top: 2px; }
+:root {
+  --bg:        #07080f;
+  --surface-1: #0d0f1a;
+  --surface-2: #131624;
+  --surface-3: #1a1e30;
+  --border:    #222640;
+  --border-2:  #2e3358;
+  --accent:    #6366f1;
+  --accent-2:  #818cf8;
+  --accent-glow: rgba(99,102,241,0.18);
+  --green:     #10b981;
+  --green-bg:  rgba(16,185,129,0.1);
+  --green-border: rgba(16,185,129,0.3);
+  --yellow:    #f59e0b;
+  --yellow-bg: rgba(245,158,11,0.1);
+  --yellow-border: rgba(245,158,11,0.3);
+  --red:       #ef4444;
+  --red-bg:    rgba(239,68,68,0.1);
+  --red-border: rgba(239,68,68,0.3);
+  --blue:      #3b82f6;
+  --blue-bg:   rgba(59,130,246,0.1);
+  --text-1:    #f1f5f9;
+  --text-2:    #94a3b8;
+  --text-3:    #475569;
+  --radius:    14px;
+  --radius-sm: 8px;
+}
 
-  .container { max-width: 900px; margin: 0 auto; padding: 32px 24px; }
+body {
+  font-family: 'Inter', -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--text-1);
+  min-height: 100vh;
+  line-height: 1.5;
+}
 
-  .form-card {
-    background: #161b22;
-    border: 1px solid #30363d;
-    border-radius: 12px;
-    padding: 28px;
-    margin-bottom: 28px;
-  }
-  .form-card h2 { font-size: 15px; font-weight: 600; color: #58a6ff; margin-bottom: 20px; }
+/* ── Scrollbar ── */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--surface-1); }
+::-webkit-scrollbar-thumb { background: var(--border-2); border-radius: 3px; }
 
-  .form-row { display: flex; gap: 16px; flex-wrap: wrap; align-items: flex-end; }
-  .form-group { flex: 1; min-width: 180px; }
-  .form-group label { display: block; font-size: 12px; font-weight: 600; color: #8b949e; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
-  .form-group select, .form-group input {
-    width: 100%;
-    background: #0d1117;
-    border: 1px solid #30363d;
-    border-radius: 8px;
-    color: #e6edf3;
-    font-size: 14px;
-    padding: 10px 14px;
-    outline: none;
-    transition: border-color 0.15s;
-  }
-  .form-group select:focus, .form-group input:focus { border-color: #58a6ff; }
+/* ── Header ── */
+header {
+  background: linear-gradient(135deg, var(--surface-1) 0%, #0e1120 100%);
+  border-bottom: 1px solid var(--border);
+  padding: 0 40px;
+  height: 68px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  backdrop-filter: blur(12px);
+}
 
-  .btn-run {
-    background: #238636;
-    color: #fff;
-    border: none;
-    border-radius: 8px;
-    padding: 11px 28px;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background 0.15s;
-    white-space: nowrap;
-  }
-  .btn-run:hover { background: #2ea043; }
-  .btn-run:disabled { background: #30363d; color: #8b949e; cursor: not-allowed; }
+.logo-mark {
+  width: 38px; height: 38px;
+  background: linear-gradient(135deg, var(--accent) 0%, #a855f7 100%);
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+  box-shadow: 0 0 20px var(--accent-glow);
+}
 
-  .btn-stop {
-    background: #da3633;
-    color: #fff;
-    border: none;
-    border-radius: 8px;
-    padding: 11px 28px;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background 0.15s;
-    white-space: nowrap;
-    display: none;
-  }
-  .btn-stop:hover { background: #f85149; }
+.header-text h1 {
+  font-size: 17px;
+  font-weight: 700;
+  background: linear-gradient(90deg, #f1f5f9 0%, var(--accent-2) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  letter-spacing: -0.3px;
+}
+.header-text p {
+  font-size: 12px;
+  color: var(--text-3);
+  font-weight: 400;
+  margin-top: 1px;
+}
 
-  .btn-resume {
-    background: #1f6feb;
-    color: #fff;
-    border: none;
-    border-radius: 8px;
-    padding: 11px 28px;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background 0.15s;
-    white-space: nowrap;
-    display: none;
-  }
-  .btn-resume:hover { background: #388bfd; }
+.header-badge {
+  margin-left: auto;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--accent-2);
+  background: var(--accent-glow);
+  border: 1px solid rgba(99,102,241,0.3);
+  border-radius: 20px;
+  padding: 4px 12px;
+  letter-spacing: 0.3px;
+}
 
-  /* Phase cards */
-  .phases { display: flex; flex-direction: column; gap: 16px; }
+/* ── Layout ── */
+.container { max-width: 960px; margin: 0 auto; padding: 36px 24px 60px; }
 
-  .phase-card {
-    background: #161b22;
-    border: 1px solid #30363d;
-    border-radius: 12px;
-    overflow: hidden;
-    transition: border-color 0.2s;
-  }
-  .phase-card.running { border-color: #d29922; }
-  .phase-card.complete { border-color: #238636; }
-  .phase-card.skipped { border-color: #30363d; opacity: 0.6; }
-  .phase-card.error { border-color: #da3633; }
+/* ── Form Card ── */
+.form-card {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 28px 32px;
+  margin-bottom: 24px;
+  position: relative;
+  overflow: hidden;
+}
+.form-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--accent), #a855f7, #06b6d4);
+}
 
-  .phase-header {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 16px 20px;
-    cursor: pointer;
-    user-select: none;
-  }
-  .phase-header:hover { background: rgba(255,255,255,0.03); }
+.form-card-header {
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 22px;
+}
+.form-card-header .fc-icon {
+  width: 28px; height: 28px;
+  background: var(--accent-glow);
+  border: 1px solid rgba(99,102,241,0.3);
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px;
+}
+.form-card-header h2 {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-2);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
 
-  .phase-icon { font-size: 18px; width: 24px; text-align: center; }
-  .phase-title { font-size: 14px; font-weight: 600; flex: 1; }
-  .phase-status {
-    font-size: 11px;
-    font-weight: 600;
-    padding: 3px 10px;
-    border-radius: 20px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
-  .status-waiting { background: #21262d; color: #8b949e; }
-  .status-running { background: #3d2e00; color: #d29922; }
-  .status-complete { background: #0d2119; color: #3fb950; }
-  .status-skipped { background: #21262d; color: #8b949e; }
-  .status-error { background: #2d1117; color: #f85149; }
+.form-row { display: flex; gap: 14px; flex-wrap: wrap; align-items: flex-end; }
+.form-group { flex: 1; min-width: 160px; }
+.form-group label {
+  display: block;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-3);
+  text-transform: uppercase;
+  letter-spacing: 0.7px;
+  margin-bottom: 7px;
+}
+.form-group select, .form-group input {
+  width: 100%;
+  background: var(--surface-1);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-1);
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 10px 14px;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  appearance: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+}
+.form-group select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2394a3b8' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 36px;
+}
+.form-group select:focus, .form-group input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-glow);
+}
+.form-group input::placeholder { color: var(--text-3); }
 
-  .phase-spinner {
-    width: 14px; height: 14px;
-    border: 2px solid #d29922;
-    border-top-color: transparent;
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
-    display: none;
-  }
-  .running .phase-spinner { display: block; }
+.btn-group { display: flex; gap: 10px; flex-shrink: 0; }
 
-  @keyframes spin { to { transform: rotate(360deg); } }
+.btn-run {
+  background: linear-gradient(135deg, var(--accent) 0%, #7c3aed 100%);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 11px 24px;
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s, transform 0.1s;
+  white-space: nowrap;
+  box-shadow: 0 4px 15px rgba(99,102,241,0.35);
+}
+.btn-run:hover { opacity: 0.9; transform: translateY(-1px); }
+.btn-run:active { transform: translateY(0); }
+.btn-run:disabled {
+  background: var(--surface-3);
+  color: var(--text-3);
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
+  opacity: 1;
+}
 
-  .phase-body {
-    display: none;
-    padding: 0 20px 20px;
-  }
-  .phase-body.open { display: block; }
+.btn-stop {
+  background: var(--red-bg);
+  color: var(--red);
+  border: 1px solid var(--red-border);
+  border-radius: var(--radius-sm);
+  padding: 11px 20px;
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+  white-space: nowrap;
+  display: none;
+}
+.btn-stop:hover { background: rgba(239,68,68,0.18); }
 
-  .phase-output {
-    background: #0d1117;
-    border: 1px solid #21262d;
-    border-radius: 8px;
-    padding: 16px;
-    font-family: 'SF Mono', 'Fira Code', monospace;
-    font-size: 12px;
-    line-height: 1.7;
-    color: #c9d1d9;
-    white-space: pre-wrap;
-    word-break: break-word;
-    max-height: 500px;
-    overflow-y: auto;
-  }
+.btn-resume {
+  background: var(--blue-bg);
+  color: var(--blue);
+  border: 1px solid rgba(59,130,246,0.3);
+  border-radius: var(--radius-sm);
+  padding: 11px 20px;
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+  white-space: nowrap;
+  display: none;
+}
+.btn-resume:hover { background: rgba(59,130,246,0.18); }
 
-  .copy-btn {
-    background: transparent;
-    border: 1px solid #30363d;
-    color: #8b949e;
-    border-radius: 6px;
-    padding: 5px 12px;
-    font-size: 12px;
-    cursor: pointer;
-    margin-top: 10px;
-    transition: all 0.15s;
-  }
-  .copy-btn:hover { border-color: #58a6ff; color: #58a6ff; }
-  .copy-btn.copied { border-color: #238636; color: #3fb950; }
+/* ── Pipeline Progress Tracker ── */
+.pipeline-tracker {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px 28px;
+  margin-bottom: 24px;
+  display: none;
+}
+.pipeline-tracker.show { display: block; }
 
-  .export-btn {
-    background: #238636;
-    border: 1px solid #2ea043;
-    color: #fff;
-    border-radius: 6px;
-    padding: 5px 14px;
-    font-size: 12px;
-    font-weight: 600;
-    cursor: pointer;
-    margin-top: 10px;
-    margin-left: 8px;
-    transition: all 0.15s;
-  }
-  .export-btn:hover { background: #2ea043; }
-  .export-btn:disabled { background: #21262d; color: #8b949e; border-color: #30363d; cursor: not-allowed; }
+.pipeline-steps {
+  display: flex;
+  align-items: center;
+  gap: 0;
+}
 
-  .verdict-badge {
-    display: inline-block;
-    font-size: 18px;
-    font-weight: 700;
-    padding: 8px 20px;
-    border-radius: 8px;
-    margin-bottom: 12px;
-  }
-  .go { background: #0d2119; color: #3fb950; border: 1px solid #238636; }
-  .nogo { background: #2d1117; color: #f85149; border: 1px solid #da3633; }
-  .borderline { background: #3d2e00; color: #d29922; border: 1px solid #9e6a03; }
+.pipeline-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+  position: relative;
+  gap: 8px;
+}
 
-  .info-bar {
-    background: #161b22;
-    border: 1px solid #30363d;
-    border-radius: 8px;
-    padding: 12px 16px;
-    font-size: 13px;
-    color: #8b949e;
-    margin-bottom: 20px;
-    display: none;
-  }
-  .info-bar.show { display: block; }
-  .info-bar.warn { border-color: #9e6a03; background: #2a1f00; color: #d29922; }
+.pipeline-step:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  top: 16px;
+  left: calc(50% + 18px);
+  right: calc(-50% + 18px);
+  height: 2px;
+  background: var(--border-2);
+  z-index: 0;
+  transition: background 0.4s;
+}
+.pipeline-step.complete:not(:last-child)::after {
+  background: linear-gradient(90deg, var(--green), var(--green));
+}
+.pipeline-step.running:not(:last-child)::after {
+  background: linear-gradient(90deg, var(--green), var(--border-2));
+}
 
-  .next-state-bar {
-    background: #0d2340;
-    border: 1px solid #1f6feb;
-    border-radius: 8px;
-    padding: 14px 18px;
-    font-size: 13px;
-    color: #79c0ff;
-    margin-bottom: 20px;
-    display: none;
-    align-items: center;
-    gap: 14px;
-    flex-wrap: wrap;
-  }
-  .next-state-bar.show { display: flex; }
-  .next-state-bar span { flex: 1; }
-  .btn-next-state {
-    background: #1f6feb;
-    color: #fff;
-    border: none;
-    border-radius: 8px;
-    padding: 9px 20px;
-    font-size: 13px;
-    font-weight: 600;
-    cursor: pointer;
-    white-space: nowrap;
-    transition: background 0.15s;
-  }
-  .btn-next-state:hover { background: #388bfd; }
+.step-circle {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px;
+  font-weight: 700;
+  border: 2px solid var(--border-2);
+  background: var(--surface-1);
+  color: var(--text-3);
+  position: relative;
+  z-index: 1;
+  transition: all 0.3s;
+  flex-shrink: 0;
+}
+.pipeline-step.running .step-circle {
+  border-color: var(--yellow);
+  background: var(--yellow-bg);
+  color: var(--yellow);
+  animation: pulse-ring 1.5s ease-in-out infinite;
+}
+.pipeline-step.complete .step-circle {
+  border-color: var(--green);
+  background: var(--green-bg);
+  color: var(--green);
+}
+.pipeline-step.skipped .step-circle {
+  border-color: var(--border);
+  background: var(--surface-1);
+  color: var(--text-3);
+  opacity: 0.5;
+}
+.pipeline-step.error .step-circle {
+  border-color: var(--red);
+  background: var(--red-bg);
+  color: var(--red);
+}
 
-  .chevron { font-size: 12px; color: #8b949e; transition: transform 0.2s; }
-  .phase-header.open .chevron { transform: rotate(180deg); }
+@keyframes pulse-ring {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(245,158,11,0.4); }
+  50%       { box-shadow: 0 0 0 6px rgba(245,158,11,0); }
+}
 
-  .cached-badge {
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: 0.8px;
-    color: #58a6ff;
-    background: #0d2340;
-    border: 1px solid #1f6feb;
-    border-radius: 4px;
-    padding: 2px 7px;
-  }
+.step-label {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text-3);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  text-align: center;
+  transition: color 0.3s;
+  line-height: 1.3;
+  max-width: 64px;
+}
+.pipeline-step.running .step-label { color: var(--yellow); }
+.pipeline-step.complete .step-label { color: var(--green); }
 
-  /* ── Structured rendered views ─────────────────────────── */
-  .phase-rendered { display: none; }
+/* ── Info Bar ── */
+.info-bar {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 12px 18px;
+  font-size: 13px;
+  color: var(--text-2);
+  margin-bottom: 20px;
+  display: none;
+  align-items: center;
+  gap: 10px;
+}
+.info-bar.show { display: flex; }
+.info-bar .info-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--accent);
+  flex-shrink: 0;
+  animation: blink 1.2s ease-in-out infinite;
+}
+@keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0.2; } }
+.info-bar.warn {
+  border-color: var(--yellow-border);
+  background: var(--yellow-bg);
+  color: var(--yellow);
+}
+.info-bar.warn .info-dot { background: var(--yellow); }
 
-  .rendered-section {
-    background: #0d1117;
-    border: 1px solid #21262d;
-    border-radius: 8px;
-    padding: 16px;
-    margin-bottom: 12px;
-  }
-  .rendered-section-title {
-    font-size: 13px;
-    font-weight: 700;
-    color: #58a6ff;
-    text-transform: uppercase;
-    letter-spacing: 0.6px;
-    margin-bottom: 14px;
-    padding-bottom: 10px;
-    border-bottom: 1px solid #21262d;
-  }
-  .copy-group-label {
-    font-size: 11px;
-    font-weight: 700;
-    color: #8b949e;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin: 14px 0 7px;
-  }
-  .copy-rule { font-weight: 400; text-transform: none; letter-spacing: 0; color: #6e7681; }
+.next-state-bar {
+  background: var(--blue-bg);
+  border: 1px solid rgba(59,130,246,0.3);
+  border-radius: var(--radius-sm);
+  padding: 14px 18px;
+  font-size: 13px;
+  color: #93c5fd;
+  margin-bottom: 20px;
+  display: none;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+.next-state-bar.show { display: flex; }
+.next-state-bar span { flex: 1; }
+.btn-next-state {
+  background: var(--blue);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 9px 20px;
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: opacity 0.15s;
+}
+.btn-next-state:hover { opacity: 0.85; }
 
-  .ad-copy-box {
-    background: #161b22;
-    border: 1px solid #30363d;
-    border-radius: 6px;
-    margin-bottom: 8px;
-    overflow: hidden;
-  }
-  .box-header {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 5px 10px;
-    background: #21262d;
-    border-bottom: 1px solid #30363d;
-  }
-  .box-label {
-    font-size: 11px;
-    font-weight: 700;
-    color: #58a6ff;
-    min-width: 22px;
-  }
-  .count-ok  { font-size: 11px; color: #6e7681; margin-left: auto; }
-  .count-near { font-size: 11px; color: #d29922; margin-left: auto; font-weight: 600; }
-  .count-over { font-size: 11px; color: #f85149; margin-left: auto; font-weight: 600; }
-  .inline-copy-btn {
-    background: transparent;
-    border: 1px solid #30363d;
-    color: #8b949e;
-    border-radius: 4px;
-    padding: 2px 9px;
-    font-size: 11px;
-    cursor: pointer;
-    margin-left: auto;
-    transition: all 0.15s;
-  }
-  .box-label ~ .inline-copy-btn { margin-left: 0; }
-  .inline-copy-btn:hover { border-color: #58a6ff; color: #58a6ff; }
-  .box-text {
-    padding: 10px 12px;
-    font-size: 13px;
-    color: #e6edf3;
-    line-height: 1.6;
-    white-space: pre-wrap;
-    word-break: break-word;
-  }
+/* ── Phase Cards ── */
+.phases { display: flex; flex-direction: column; gap: 12px; }
 
-  .info-block {
-    background: #161b22;
-    border: 1px solid #30363d;
-    border-radius: 6px;
-    padding: 10px 12px;
-    font-size: 12px;
-    color: #c9d1d9;
-    line-height: 1.7;
-    white-space: pre-wrap;
-  }
+.phase-card {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  transition: border-color 0.25s, box-shadow 0.25s;
+}
+.phase-card.running {
+  border-color: var(--yellow-border);
+  box-shadow: 0 0 0 1px var(--yellow-border), 0 4px 20px rgba(245,158,11,0.08);
+}
+.phase-card.complete {
+  border-color: var(--green-border);
+}
+.phase-card.skipped { opacity: 0.55; }
+.phase-card.error   { border-color: var(--red-border); }
 
-  /* ── Prospect cards ─────────────────────────────────────── */
-  .prospects-grid { display: flex; flex-direction: column; gap: 10px; }
-  .prospect-card {
-    background: #0d1117;
-    border: 1px solid #21262d;
-    border-radius: 8px;
-    overflow: hidden;
-  }
-  .prospect-header {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 9px 14px;
-    background: #161b22;
-    border-bottom: 1px solid #21262d;
-    flex-wrap: wrap;
-  }
-  .prospect-num {
-    font-size: 11px;
-    font-weight: 700;
-    color: #58a6ff;
-    background: #0d2340;
-    border: 1px solid #1f6feb;
-    border-radius: 4px;
-    padding: 2px 6px;
-    flex-shrink: 0;
-  }
-  .prospect-name { font-size: 14px; font-weight: 600; color: #e6edf3; flex: 1; }
-  .found-via-badge {
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: 0.4px;
-    padding: 2px 8px;
-    border-radius: 10px;
-    flex-shrink: 0;
-  }
-  .fvb-google  { background: #0d2119; color: #3fb950; border: 1px solid #238636; }
-  .fvb-ha      { background: #2d0a00; color: #ff7b72; border: 1px solid #da3633; }
-  .fvb-angi    { background: #2d0a00; color: #ffb27a; border: 1px solid #bd4f00; }
-  .fvb-tt      { background: #0d2340; color: #79c0ff; border: 1px solid #1f6feb; }
-  .fvb-yelp    { background: #3d1500; color: #ffa657; border: 1px solid #bd4f00; }
-  .fvb-default { background: #21262d; color: #8b949e; border: 1px solid #30363d; }
-  .prospect-body { padding: 10px 14px; display: flex; flex-direction: column; gap: 6px; }
-  .pf { display: flex; align-items: flex-start; gap: 8px; font-size: 13px; color: #c9d1d9; }
-  .pfi { font-size: 14px; flex-shrink: 0; line-height: 1.5; }
-  .prospect-link { color: #58a6ff; text-decoration: none; }
-  .prospect-link:hover { text-decoration: underline; }
-  .prospect-phone { color: #3fb950; text-decoration: none; font-weight: 600; font-size: 14px; }
-  .prospect-phone:hover { text-decoration: underline; }
-  .pf-notes { color: #8b949e; font-size: 12px; }
+.phase-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 20px;
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.15s;
+}
+.phase-header:hover { background: rgba(255,255,255,0.02); }
 
-  /* ── Due Diligence cards ─────────────────────────────────── */
-  .dd-reasoning {
-    font-size: 13px;
-    color: #c9d1d9;
-    line-height: 1.6;
-    background: #0d1117;
-    border: 1px solid #21262d;
-    border-radius: 6px;
-    padding: 10px 14px;
-    margin-bottom: 14px;
-  }
-  .comp-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 10px;
-  }
-  @media (max-width: 680px) { .comp-grid { grid-template-columns: 1fr; } }
-  .comp-card {
-    background: #0d1117;
-    border: 1px solid #21262d;
-    border-radius: 8px;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-  }
-  .comp-header { padding: 10px 12px; background: #161b22; border-bottom: 1px solid #21262d; }
-  .comp-num {
-    font-size: 10px;
-    font-weight: 700;
-    color: #8b949e;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    display: block;
-  }
-  .comp-name { font-size: 13px; font-weight: 600; color: #e6edf3; display: block; margin-top: 3px; }
-  .comp-domain { font-size: 11px; color: #58a6ff; display: block; margin-top: 4px; }
-  .no-website-flag {
-    display: inline-block;
-    margin-top: 4px;
-    font-size: 11px;
-    font-weight: 700;
-    color: #3fb950;
-    background: #0d2119;
-    border: 1px solid #238636;
-    border-radius: 4px;
-    padding: 2px 6px;
-  }
-  .comp-metrics { padding: 10px 12px; display: flex; flex-direction: column; gap: 8px; flex: 1; }
-  .metric-row { display: flex; flex-direction: column; gap: 2px; }
-  .metric-label {
-    font-size: 10px;
-    font-weight: 700;
-    color: #6e7681;
-    text-transform: uppercase;
-    letter-spacing: 0.3px;
-  }
-  .metric-val { font-size: 12px; color: #c9d1d9; line-height: 1.4; }
-  .mc-green .metric-val { color: #3fb950; }
-  .mc-red   .metric-val { color: #f85149; }
-  .mc-yellow .metric-val { color: #d29922; }
-  .comp-threat {
-    padding: 7px 12px;
-    font-size: 12px;
-    font-weight: 600;
-    text-align: center;
-    border-top: 1px solid #21262d;
-  }
-  .threat-weak  { background: #0d2119; color: #3fb950; }
-  .threat-strong { background: #2d1117; color: #f85149; }
-  .threat-mod   { background: #3d2e00; color: #d29922; }
+.phase-num {
+  width: 26px; height: 26px;
+  border-radius: 8px;
+  background: var(--surface-3);
+  border: 1px solid var(--border-2);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-3);
+  flex-shrink: 0;
+  transition: all 0.2s;
+}
+.running .phase-num  { background: var(--yellow-bg); border-color: var(--yellow-border); color: var(--yellow); }
+.complete .phase-num { background: var(--green-bg); border-color: var(--green-border); color: var(--green); }
 
-  /* Raw toggle */
-  .raw-toggle {
-    display: none;
-    background: transparent;
-    border: none;
-    color: #6e7681;
-    font-size: 11px;
-    cursor: pointer;
-    padding: 4px 0;
-    margin-left: 12px;
-    text-decoration: underline;
-  }
-  .raw-toggle:hover { color: #58a6ff; }
+.phase-icon { font-size: 16px; flex-shrink: 0; }
+.phase-title { font-size: 14px; font-weight: 600; color: var(--text-1); flex: 1; }
+
+.phase-status {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 20px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+.status-waiting  { background: var(--surface-3); color: var(--text-3); }
+.status-running  { background: var(--yellow-bg); color: var(--yellow); border: 1px solid var(--yellow-border); }
+.status-complete { background: var(--green-bg);  color: var(--green);  border: 1px solid var(--green-border); }
+.status-skipped  { background: var(--surface-3); color: var(--text-3); }
+.status-error    { background: var(--red-bg);    color: var(--red);    border: 1px solid var(--red-border); }
+
+.phase-spinner {
+  width: 15px; height: 15px;
+  border: 2px solid var(--yellow-border);
+  border-top-color: var(--yellow);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  display: none;
+  flex-shrink: 0;
+}
+.running .phase-spinner { display: block; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.cached-badge {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  color: var(--accent-2);
+  background: var(--accent-glow);
+  border: 1px solid rgba(99,102,241,0.35);
+  border-radius: 4px;
+  padding: 2px 7px;
+}
+
+.chevron { font-size: 11px; color: var(--text-3); transition: transform 0.2s; }
+.phase-header.open .chevron { transform: rotate(180deg); }
+
+.phase-body { display: none; padding: 0 20px 20px; }
+.phase-body.open { display: block; }
+
+/* ── Verdict Badge ── */
+.verdict-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 15px;
+  font-weight: 700;
+  padding: 10px 22px;
+  border-radius: var(--radius-sm);
+  margin-bottom: 14px;
+}
+.go        { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-border); }
+.nogo      { background: var(--red-bg); color: var(--red); border: 1px solid var(--red-border); }
+.borderline { background: var(--yellow-bg); color: var(--yellow); border: 1px solid var(--yellow-border); }
+
+/* ── Output ── */
+.phase-output {
+  background: var(--surface-1);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 16px;
+  font-family: 'JetBrains Mono', 'SF Mono', monospace;
+  font-size: 12px;
+  line-height: 1.75;
+  color: #cbd5e1;
+  white-space: pre-wrap;
+  word-break: break-word;
+  max-height: 500px;
+  overflow-y: auto;
+}
+
+/* ── Buttons Row ── */
+.output-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
+
+.copy-btn {
+  background: transparent;
+  border: 1px solid var(--border-2);
+  color: var(--text-2);
+  border-radius: 6px;
+  padding: 6px 14px;
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.copy-btn:hover { border-color: var(--accent); color: var(--accent-2); }
+.copy-btn.copied { border-color: var(--green); color: var(--green); }
+
+.export-btn {
+  background: linear-gradient(135deg, var(--green) 0%, #059669 100%);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 6px 16px;
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s, transform 0.1s;
+  box-shadow: 0 2px 10px rgba(16,185,129,0.3);
+}
+.export-btn:hover { opacity: 0.9; transform: translateY(-1px); }
+.export-btn:disabled {
+  background: var(--surface-3);
+  color: var(--text-3);
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
+  opacity: 1;
+}
+
+.raw-toggle {
+  display: none;
+  background: transparent;
+  border: none;
+  color: var(--text-3);
+  font-family: 'Inter', sans-serif;
+  font-size: 11px;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 4px 0;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.raw-toggle:hover { color: var(--accent-2); }
+
+/* ── Rendered Views ── */
+.phase-rendered { display: none; }
+
+.rendered-section {
+  background: var(--surface-1);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 18px;
+  margin-bottom: 14px;
+}
+.rendered-section-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--accent-2);
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.copy-group-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-3);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 16px 0 8px;
+}
+.copy-rule { font-weight: 400; text-transform: none; letter-spacing: 0; color: var(--border-2); }
+
+.ad-copy-box {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  margin-bottom: 8px;
+  overflow: hidden;
+  transition: border-color 0.15s;
+}
+.ad-copy-box:hover { border-color: var(--border-2); }
+.box-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  background: var(--surface-3);
+  border-bottom: 1px solid var(--border);
+}
+.box-label { font-size: 11px; font-weight: 700; color: var(--accent-2); min-width: 22px; }
+.count-ok   { font-size: 11px; color: var(--text-3); margin-left: auto; }
+.count-near { font-size: 11px; color: var(--yellow); margin-left: auto; font-weight: 600; }
+.count-over { font-size: 11px; color: var(--red); margin-left: auto; font-weight: 600; }
+.inline-copy-btn {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-3);
+  border-radius: 4px;
+  padding: 2px 9px;
+  font-family: 'Inter', sans-serif;
+  font-size: 11px;
+  cursor: pointer;
+  margin-left: auto;
+  transition: all 0.15s;
+}
+.box-label ~ .inline-copy-btn { margin-left: 0; }
+.inline-copy-btn:hover { border-color: var(--accent); color: var(--accent-2); }
+.box-text {
+  padding: 12px 14px;
+  font-size: 13px;
+  color: var(--text-1);
+  line-height: 1.65;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.info-block {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px 14px;
+  font-size: 12.5px;
+  color: #cbd5e1;
+  line-height: 1.75;
+  white-space: pre-wrap;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* ── Prospect Cards ── */
+.prospects-grid { display: flex; flex-direction: column; gap: 10px; }
+
+.prospect-card {
+  background: var(--surface-1);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  transition: border-color 0.15s;
+}
+.prospect-card:hover { border-color: var(--border-2); }
+
+.prospect-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  background: var(--surface-2);
+  border-bottom: 1px solid var(--border);
+  flex-wrap: wrap;
+}
+.prospect-num {
+  font-size: 10px; font-weight: 700;
+  color: var(--accent-2);
+  background: var(--accent-glow);
+  border: 1px solid rgba(99,102,241,0.3);
+  border-radius: 4px;
+  padding: 2px 7px;
+  flex-shrink: 0;
+}
+.prospect-name { font-size: 14px; font-weight: 600; color: var(--text-1); flex: 1; }
+
+.found-via-badge {
+  font-size: 10px; font-weight: 700;
+  letter-spacing: 0.3px;
+  padding: 3px 9px;
+  border-radius: 20px;
+  flex-shrink: 0;
+}
+.fvb-google  { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-border); }
+.fvb-ha      { background: rgba(239,68,68,0.1); color: #fca5a5; border: 1px solid rgba(239,68,68,0.25); }
+.fvb-angi    { background: rgba(249,115,22,0.1); color: #fdba74; border: 1px solid rgba(249,115,22,0.25); }
+.fvb-tt      { background: var(--blue-bg); color: #93c5fd; border: 1px solid rgba(59,130,246,0.3); }
+.fvb-yelp    { background: rgba(234,88,12,0.1); color: #fb923c; border: 1px solid rgba(234,88,12,0.25); }
+.fvb-default { background: var(--surface-3); color: var(--text-3); border: 1px solid var(--border); }
+
+.prospect-body { padding: 12px 16px; display: flex; flex-direction: column; gap: 7px; }
+.pf { display: flex; align-items: flex-start; gap: 9px; font-size: 13px; color: #cbd5e1; }
+.pfi { font-size: 14px; flex-shrink: 0; line-height: 1.5; }
+.prospect-link { color: var(--accent-2); text-decoration: none; }
+.prospect-link:hover { text-decoration: underline; }
+.prospect-phone { color: var(--green); text-decoration: none; font-weight: 600; font-size: 14px; }
+.prospect-phone:hover { text-decoration: underline; }
+.pf-notes { color: var(--text-3); font-size: 12px; }
+
+/* ── Due Diligence Cards ── */
+.dd-reasoning {
+  font-size: 13px;
+  color: #cbd5e1;
+  line-height: 1.65;
+  background: var(--surface-1);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 12px 16px;
+  margin-bottom: 16px;
+}
+
+.comp-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+@media (max-width: 640px) { .comp-grid { grid-template-columns: 1fr; } }
+
+.comp-card {
+  background: var(--surface-1);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: border-color 0.15s;
+}
+.comp-card:hover { border-color: var(--border-2); }
+
+.comp-header {
+  padding: 12px 14px;
+  background: var(--surface-2);
+  border-bottom: 1px solid var(--border);
+}
+.comp-num { font-size: 10px; font-weight: 700; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.5px; display: block; }
+.comp-name { font-size: 13px; font-weight: 600; color: var(--text-1); display: block; margin-top: 4px; }
+.comp-domain { font-size: 11px; color: var(--accent-2); display: block; margin-top: 4px; }
+.no-website-flag {
+  display: inline-block;
+  margin-top: 5px;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--green);
+  background: var(--green-bg);
+  border: 1px solid var(--green-border);
+  border-radius: 4px;
+  padding: 2px 7px;
+}
+
+.comp-metrics { padding: 12px 14px; display: flex; flex-direction: column; gap: 9px; flex: 1; }
+.metric-row { display: flex; flex-direction: column; gap: 3px; }
+.metric-label { font-size: 10px; font-weight: 700; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.3px; }
+.metric-val { font-size: 12px; color: #cbd5e1; line-height: 1.4; }
+.mc-green .metric-val { color: var(--green); }
+.mc-red   .metric-val { color: var(--red); }
+.mc-yellow .metric-val { color: var(--yellow); }
+
+.comp-threat {
+  padding: 8px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  text-align: center;
+  border-top: 1px solid var(--border);
+  letter-spacing: 0.2px;
+}
+.threat-weak   { background: var(--green-bg); color: var(--green); }
+.threat-strong { background: var(--red-bg); color: var(--red); }
+.threat-mod    { background: var(--yellow-bg); color: var(--yellow); }
+
+/* ── Footer ── */
+.app-footer {
+  text-align: center;
+  padding: 32px 0 0;
+  font-size: 12px;
+  color: var(--text-3);
+}
+.app-footer a { color: var(--accent-2); text-decoration: none; }
 </style>
 </head>
 <body>
 
 <header>
-  <div class="logo">🏠</div>
-  <div>
-    <h1>Rank & Rent Research System</h1>
-    <p>Flat Fee Mastery / Digital Landlords — Automated Due Diligence</p>
+  <div class="logo-mark">🏠</div>
+  <div class="header-text">
+    <h1>RankRent AI</h1>
+    <p>Automated Rank & Rent Market Research System</p>
   </div>
+  <div class="header-badge">Flat Fee Mastery Methodology</div>
 </header>
 
 <div class="container">
 
   <!-- Input Form -->
   <div class="form-card">
-    <h2>NEW MARKET RESEARCH</h2>
+    <div class="form-card-header">
+      <div class="fc-icon">🎯</div>
+      <h2>New Market Research</h2>
+    </div>
     <div class="form-row">
       <div class="form-group">
         <label>Niche</label>
@@ -522,35 +843,68 @@
         <label>State</label>
         <select id="state">
           <option value="">Select state...</option>
-          <option value="FL">Florida (FL)</option>
-          <option value="TX">Texas (TX)</option>
-          <option value="GA">Georgia (GA)</option>
-          <option value="NC">North Carolina (NC)</option>
-          <option value="AZ">Arizona (AZ)</option>
-          <option value="TN">Tennessee (TN)</option>
-          <option value="SC">South Carolina (SC)</option>
-          <option value="AL">Alabama (AL)</option>
-          <option value="LA">Louisiana (LA)</option>
-          <option value="NV">Nevada (NV)</option>
-          <option value="VA">Virginia (VA)</option>
-          <option value="OK">Oklahoma (OK)</option>
-          <option value="UT">Utah (UT)</option>
-          <option value="AR">Arkansas (AR)</option>
-          <option value="MS">Mississippi (MS)</option>
+          <option value="FL">Florida</option>
+          <option value="TX">Texas</option>
+          <option value="GA">Georgia</option>
+          <option value="NC">North Carolina</option>
+          <option value="AZ">Arizona</option>
+          <option value="TN">Tennessee</option>
+          <option value="SC">South Carolina</option>
+          <option value="AL">Alabama</option>
+          <option value="LA">Louisiana</option>
+          <option value="NV">Nevada</option>
+          <option value="VA">Virginia</option>
+          <option value="OK">Oklahoma</option>
+          <option value="UT">Utah</option>
+          <option value="AR">Arkansas</option>
+          <option value="MS">Mississippi</option>
         </select>
       </div>
       <div class="form-group">
-        <label>City (optional)</label>
-        <input type="text" id="city" placeholder="Leave blank to auto-find" />
+        <label>City <span style="font-weight:400;text-transform:none;letter-spacing:0;">(optional)</span></label>
+        <input type="text" id="city" placeholder="Auto-find best city" />
       </div>
-      <button class="btn-run" id="runBtn" onclick="startResearch()">Run Research</button>
-      <button class="btn-stop" id="stopBtn" onclick="stopResearch()">Stop</button>
-      <button class="btn-resume" id="resumeBtn" onclick="resumeResearch()">&#9654; Resume</button>
+      <div class="btn-group">
+        <button class="btn-run" id="runBtn" onclick="startResearch()">▶ Run Research</button>
+        <button class="btn-stop" id="stopBtn" onclick="stopResearch()">⏹ Stop</button>
+        <button class="btn-resume" id="resumeBtn" onclick="resumeResearch()">▶ Resume</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pipeline Progress Tracker -->
+  <div class="pipeline-tracker" id="pipelineTracker">
+    <div class="pipeline-steps">
+      <div class="pipeline-step" id="pstep-keywords">
+        <div class="step-circle" id="pcirc-keywords">🔑</div>
+        <div class="step-label">Keywords</div>
+      </div>
+      <div class="pipeline-step" id="pstep-cities">
+        <div class="step-circle" id="pcirc-cities">🗺️</div>
+        <div class="step-label">Cities</div>
+      </div>
+      <div class="pipeline-step" id="pstep-competitors">
+        <div class="step-circle" id="pcirc-competitors">🔍</div>
+        <div class="step-label">Competitors</div>
+      </div>
+      <div class="pipeline-step" id="pstep-analysis">
+        <div class="step-circle" id="pcirc-analysis">📊</div>
+        <div class="step-label">Due Diligence</div>
+      </div>
+      <div class="pipeline-step" id="pstep-prospects">
+        <div class="step-circle" id="pcirc-prospects">📞</div>
+        <div class="step-label">Prospects</div>
+      </div>
+      <div class="pipeline-step" id="pstep-adcopy">
+        <div class="step-circle" id="pcirc-adcopy">📝</div>
+        <div class="step-label">Ad Copy</div>
+      </div>
     </div>
   </div>
 
   <!-- Status Bar -->
   <div class="info-bar" id="infoBar">
+    <div class="info-dot"></div>
     <span id="infoText">Running research...</span>
   </div>
 
@@ -565,8 +919,9 @@
 
     <div class="phase-card" id="card-keywords">
       <div class="phase-header" onclick="toggleCard('keywords')">
+        <div class="phase-num">1</div>
         <div class="phase-icon">🔑</div>
-        <div class="phase-title">Phase 1 — Keyword Research</div>
+        <div class="phase-title">Keyword Research</div>
         <span class="cached-badge" id="cached-badge" style="display:none;">CACHED</span>
         <div class="phase-spinner"></div>
         <div class="phase-status status-waiting" id="status-keywords">Waiting</div>
@@ -574,42 +929,51 @@
       </div>
       <div class="phase-body" id="body-keywords">
         <div class="phase-output" id="output-keywords">...</div>
-        <button class="copy-btn" onclick="copyOutput('keywords')">Copy</button>
+        <div class="output-actions">
+          <button class="copy-btn" onclick="copyOutput('keywords')">Copy</button>
+        </div>
       </div>
     </div>
 
     <div class="phase-card" id="card-cities">
       <div class="phase-header" onclick="toggleCard('cities')">
+        <div class="phase-num">2</div>
         <div class="phase-icon">🗺️</div>
-        <div class="phase-title">Phase 2 — City Selection</div>
+        <div class="phase-title">City Selection</div>
         <div class="phase-spinner"></div>
         <div class="phase-status status-waiting" id="status-cities">Waiting</div>
         <div class="chevron">▼</div>
       </div>
       <div class="phase-body" id="body-cities">
         <div class="phase-output" id="output-cities">...</div>
-        <button class="copy-btn" onclick="copyOutput('cities')">Copy</button>
+        <div class="output-actions">
+          <button class="copy-btn" onclick="copyOutput('cities')">Copy</button>
+        </div>
       </div>
     </div>
 
     <div class="phase-card" id="card-competitors">
       <div class="phase-header" onclick="toggleCard('competitors')">
+        <div class="phase-num">3</div>
         <div class="phase-icon">🔍</div>
-        <div class="phase-title">Phase 3 — Competitor Identification</div>
+        <div class="phase-title">Competitor Identification</div>
         <div class="phase-spinner"></div>
         <div class="phase-status status-waiting" id="status-competitors">Waiting</div>
         <div class="chevron">▼</div>
       </div>
       <div class="phase-body" id="body-competitors">
         <div class="phase-output" id="output-competitors">...</div>
-        <button class="copy-btn" onclick="copyOutput('competitors')">Copy</button>
+        <div class="output-actions">
+          <button class="copy-btn" onclick="copyOutput('competitors')">Copy</button>
+        </div>
       </div>
     </div>
 
     <div class="phase-card" id="card-analysis">
       <div class="phase-header" onclick="toggleCard('analysis')">
+        <div class="phase-num">4</div>
         <div class="phase-icon">📊</div>
-        <div class="phase-title">Phase 4 — Due Diligence & Verdict</div>
+        <div class="phase-title">Due Diligence & Verdict</div>
         <div class="phase-spinner"></div>
         <div class="phase-status status-waiting" id="status-analysis">Waiting</div>
         <div class="chevron">▼</div>
@@ -618,7 +982,7 @@
         <div id="verdict-badge"></div>
         <div class="phase-rendered" id="rendered-analysis"></div>
         <div class="phase-output" id="output-analysis">...</div>
-        <div style="display:flex;align-items:center;margin-top:10px;gap:4px;">
+        <div class="output-actions">
           <button class="copy-btn" onclick="copyOutput('analysis')">Copy</button>
           <button class="raw-toggle" id="rawtoggle-analysis" onclick="toggleRaw('analysis')">Show raw text ↓</button>
         </div>
@@ -627,8 +991,9 @@
 
     <div class="phase-card" id="card-prospects">
       <div class="phase-header" onclick="toggleCard('prospects')">
+        <div class="phase-num">5</div>
         <div class="phase-icon">📞</div>
-        <div class="phase-title">Phase 5 — Prospect List</div>
+        <div class="phase-title">Prospect List</div>
         <div class="phase-spinner"></div>
         <div class="phase-status status-waiting" id="status-prospects">Waiting</div>
         <div class="chevron">▼</div>
@@ -636,7 +1001,7 @@
       <div class="phase-body" id="body-prospects">
         <div class="phase-rendered" id="rendered-prospects"></div>
         <div class="phase-output" id="output-prospects">...</div>
-        <div style="display:flex;align-items:center;margin-top:10px;gap:4px;flex-wrap:wrap;">
+        <div class="output-actions">
           <button class="copy-btn" onclick="copyOutput('prospects')">Copy</button>
           <button class="export-btn" id="exportBtn" onclick="exportProspects()" disabled>⬇ Export Excel</button>
           <button class="raw-toggle" id="rawtoggle-prospects" onclick="toggleRaw('prospects')">Show raw text ↓</button>
@@ -646,8 +1011,9 @@
 
     <div class="phase-card" id="card-adcopy">
       <div class="phase-header" onclick="toggleCard('adcopy')">
+        <div class="phase-num">6</div>
         <div class="phase-icon">📝</div>
-        <div class="phase-title">Phase 6 — Ad Copy</div>
+        <div class="phase-title">Ad Copy — Google &amp; Facebook</div>
         <div class="phase-spinner"></div>
         <div class="phase-status status-waiting" id="status-adcopy">Waiting</div>
         <div class="chevron">▼</div>
@@ -655,7 +1021,7 @@
       <div class="phase-body" id="body-adcopy">
         <div class="phase-rendered" id="rendered-adcopy"></div>
         <div class="phase-output" id="output-adcopy">...</div>
-        <div style="display:flex;align-items:center;margin-top:10px;gap:4px;">
+        <div class="output-actions">
           <button class="copy-btn" onclick="copyOutput('adcopy')">Copy all</button>
           <button class="raw-toggle" id="rawtoggle-adcopy" onclick="toggleRaw('adcopy')">Show raw text ↓</button>
         </div>
@@ -663,13 +1029,16 @@
     </div>
 
   </div>
+
+  <div class="app-footer" id="appFooter" style="display:none;">
+    Built with CrewAI · Semrush · Serper · Claude AI &nbsp;|&nbsp; <a href="https://github.com/JasonAndersen11/rank-rent-crew" target="_blank">GitHub</a>
+  </div>
 </div>
 
 <script>
 const phases = ['keywords', 'cities', 'competitors', 'analysis', 'prospects', 'adcopy'];
 const cachedNiches = ['concrete', 'fencing', 'tree service'];
 
-// Priority order for state suggestions — best rank-and-rent markets first
 const STATE_PRIORITY = ['FL','TX','GA','NC','AZ','TN','SC','AL','LA','NV','VA','OK','UT','AR','MS'];
 const STATE_NAMES = {
   FL:'Florida', TX:'Texas', GA:'Georgia', NC:'North Carolina', AZ:'Arizona',
@@ -679,28 +1048,31 @@ const STATE_NAMES = {
 
 let outputs = {};
 let currentController = null;
-let resumeState = {};   // completed phase outputs, keyed by phase name
-let lastRequest = null; // original niche/state/city for resume
-let triedStates = new Set(); // states already searched this session
-let pendingNextState = null; // state code queued for the next-state button
+let resumeState = {};
+let lastRequest = null;
+let triedStates = new Set();
+let pendingNextState = null;
+
+function setPipelineStep(phase, state) {
+  const step = document.getElementById('pstep-' + phase);
+  if (!step) return;
+  step.className = 'pipeline-step ' + (state || '');
+}
 
 function startResearch() {
   const niche = document.getElementById('niche').value;
   const state = document.getElementById('state').value;
-  const city = document.getElementById('city').value.trim();
-
-  if (!niche || !state) {
-    alert('Please select a niche and state.');
-    return;
-  }
+  const city  = document.getElementById('city').value.trim();
+  if (!niche || !state) { alert('Please select a niche and state.'); return; }
 
   resumeState = {};
   lastRequest = { niche, state };
   if (city) lastRequest.city = city;
   triedStates.add(state);
 
-  // Reset UI
   document.getElementById('phases').style.display = 'flex';
+  document.getElementById('pipelineTracker').classList.add('show');
+  document.getElementById('appFooter').style.display = 'block';
   document.getElementById('infoBar').classList.remove('warn');
   document.getElementById('infoBar').classList.add('show');
   document.getElementById('nextStateBar').classList.remove('show');
@@ -715,9 +1087,9 @@ function startResearch() {
     outEl.textContent = '...';
     outEl.style.display = 'block';
     document.getElementById('card-' + p).className = 'phase-card';
-    const body = document.getElementById('body-' + p);
-    body.classList.remove('open');
+    document.getElementById('body-' + p).classList.remove('open');
     document.querySelector('#card-' + p + ' .phase-header').classList.remove('open');
+    setPipelineStep(p, '');
   });
   ['analysis', 'prospects', 'adcopy'].forEach(p => {
     const r = document.getElementById('rendered-' + p);
@@ -734,7 +1106,7 @@ function startResearch() {
     document.getElementById('cached-badge').style.display = 'inline';
   }
 
-  updateInfo(`Running ${niche} research in ${state}${city ? ' — ' + city : ''}...`);
+  updateInfo(`Running ${niche} research in ${STATE_NAMES[state] || state}${city ? ' — ' + city : ''}...`);
   startStream(lastRequest);
 }
 
@@ -747,24 +1119,19 @@ async function stopResearch() {
 
 function showNextStateSuggestion(failedState) {
   const next = STATE_PRIORITY.find(s => !triedStates.has(s));
-  if (!next) return; // tried everything
+  if (!next) return;
   pendingNextState = next;
-  const failedName = STATE_NAMES[failedState] || failedState;
-  const nextName = STATE_NAMES[next] || next;
   document.getElementById('nextStateText').textContent =
-    `No qualifying cities found in ${failedName}. The next best market to check is ${nextName}.`;
-  document.getElementById('nextStateBtn').textContent = `Try ${nextName} →`;
+    `No qualifying cities found in ${STATE_NAMES[failedState] || failedState}. Best next market: ${STATE_NAMES[next] || next}.`;
+  document.getElementById('nextStateBtn').textContent = `Try ${STATE_NAMES[next] || next} →`;
   document.getElementById('nextStateBar').classList.add('show');
 }
 
 function tryNextState() {
   if (!pendingNextState || !lastRequest) return;
   document.getElementById('nextStateBar').classList.remove('show');
-  // Pre-fill the state dropdown
   document.getElementById('state').value = pendingNextState;
-  // Clear city — let the system find one in the new state
   document.getElementById('city').value = '';
-  // Run with same niche, new state, keeping keywords from resume state
   const niche = lastRequest.niche;
   const state = pendingNextState;
   triedStates.add(state);
@@ -781,19 +1148,17 @@ function tryNextState() {
   document.getElementById('stopBtn').style.display = 'inline-block';
   document.getElementById('resumeBtn').style.display = 'none';
 
-  // Reset all phase cards except keywords (which is already complete/cached)
   phases.forEach(p => {
     if (p === 'keywords' && resumeState.keywords) return;
     setStatus(p, 'waiting', 'Waiting');
     document.getElementById('output-' + p).textContent = '...';
     document.getElementById('card-' + p).className = 'phase-card';
-    const body = document.getElementById('body-' + p);
-    body.classList.remove('open');
+    document.getElementById('body-' + p).classList.remove('open');
     document.querySelector('#card-' + p + ' .phase-header').classList.remove('open');
+    setPipelineStep(p, '');
   });
   document.getElementById('verdict-badge').innerHTML = '';
-
-  updateInfo(`Trying ${STATE_NAMES[state] || state} — searching for qualifying cities...`);
+  updateInfo(`Searching for qualifying cities in ${STATE_NAMES[state] || state}...`);
   startStream(lastRequest);
 }
 
@@ -802,7 +1167,7 @@ async function resumeResearch() {
   document.getElementById('runBtn').disabled = true;
   document.getElementById('resumeBtn').style.display = 'none';
   document.getElementById('stopBtn').style.display = 'inline-block';
-  updateInfo('Resuming research from where it left off...');
+  updateInfo('Resuming from where it left off...');
   startStream({ ...lastRequest, resume_state: resumeState });
 }
 
@@ -822,11 +1187,9 @@ async function startStream(body) {
       body: JSON.stringify(body),
       signal: currentController.signal,
     });
-
     const reader = resp.body.getReader();
     const decoder = new TextDecoder();
     let buffer = '';
-
     while (true) {
       const { done, value } = await reader.read();
       if (done) break;
@@ -835,28 +1198,23 @@ async function startStream(body) {
       buffer = lines.pop();
       for (const line of lines) {
         if (line.startsWith('data: ')) {
-          try {
-            const msg = JSON.parse(line.slice(6));
-            handleMessage(msg);
-          } catch {}
+          try { handleMessage(JSON.parse(line.slice(6))); } catch {}
         }
       }
     }
     resetControls();
   } catch (err) {
     if (err.name === 'AbortError') {
-      // Reset any still-spinning cards to "Stopped"
       phases.forEach(p => {
         const card = document.getElementById('card-' + p);
         if (card.classList.contains('running')) {
           card.className = 'phase-card';
           setStatus(p, 'waiting', 'Stopped');
+          setPipelineStep(p, '');
         }
       });
       const canResume = lastRequest && Object.keys(resumeState).length > 0;
-      updateInfo(canResume
-        ? 'Stopped. Click Resume to continue from where it left off.'
-        : 'Research stopped.');
+      updateInfo(canResume ? 'Stopped. Click Resume to continue.' : 'Research stopped.');
       resetControls(canResume);
     } else {
       updateInfo('Connection error: ' + err.message);
@@ -865,6 +1223,7 @@ async function startStream(body) {
         if (card.classList.contains('running')) {
           card.className = 'phase-card error';
           setStatus(p, 'error', 'Error');
+          setPipelineStep(p, 'error');
         }
       });
       resetControls();
@@ -874,18 +1233,17 @@ async function startStream(body) {
 
 function handleMessage(msg) {
   const { phase, status, data } = msg;
-
   if (phase === 'ping') return;
 
   if (phase === 'done') {
     if (data === 'no_cities') {
       const failedState = lastRequest ? lastRequest.state : '';
-      const failedName = STATE_NAMES[failedState] || failedState;
-      updateInfo(`No qualifying cities in ${failedName} — all checked cities failed on CPC or volume.`);
+      updateInfo(`No qualifying cities in ${STATE_NAMES[failedState] || failedState} — all cities failed CPC or volume check.`);
       document.getElementById('infoBar').classList.add('warn');
       showNextStateSuggestion(failedState);
     } else {
-      updateInfo('Research complete! All phases finished.');
+      updateInfo('✓ Research complete — all 6 phases finished.');
+      document.getElementById('infoBar').classList.remove('warn');
     }
     resetControls();
     return;
@@ -897,12 +1255,11 @@ function handleMessage(msg) {
       if (card.classList.contains('running')) {
         card.className = 'phase-card';
         setStatus(p, 'waiting', 'Stopped');
+        setPipelineStep(p, '');
       }
     });
     const canResume = lastRequest && Object.keys(resumeState).length > 0;
-    updateInfo(canResume
-      ? 'Stopped. Click Resume to continue from where it left off.'
-      : 'Research stopped.');
+    updateInfo(canResume ? 'Stopped. Click Resume to continue.' : 'Research stopped.');
     resetControls(canResume);
     return;
   }
@@ -914,6 +1271,7 @@ function handleMessage(msg) {
       if (card.classList.contains('running')) {
         card.className = 'phase-card error';
         setStatus(p, 'error', 'Error');
+        setPipelineStep(p, 'error');
       }
     });
     resetControls();
@@ -922,14 +1280,14 @@ function handleMessage(msg) {
 
   if (!phases.includes(phase)) return;
 
-  const card = document.getElementById('card-' + phase);
+  const card   = document.getElementById('card-' + phase);
   const output = document.getElementById('output-' + phase);
 
   if (status === 'running') {
     setStatus(phase, 'running', 'Running...');
     card.className = 'phase-card running';
     updateInfo('Running: ' + phaseLabel(phase) + '...');
-    // Auto-open running card
+    setPipelineStep(phase, 'running');
     openCard(phase);
   } else if (status === 'complete') {
     setStatus(phase, 'complete', 'Complete');
@@ -937,10 +1295,9 @@ function handleMessage(msg) {
     output.textContent = data;
     outputs[phase] = data;
     resumeState[phase] = data;
-    // Handle verdict badge
+    setPipelineStep(phase, 'complete');
     if (phase === 'analysis') showVerdict(data);
     if (phase === 'prospects') document.getElementById('exportBtn').disabled = false;
-    // Structured rendered view for phases 4, 5, 6
     if (['analysis', 'prospects', 'adcopy'].includes(phase)) {
       const html = renderPhaseOutput(phase, data);
       if (html) showRendered(phase, html);
@@ -950,6 +1307,7 @@ function handleMessage(msg) {
     setStatus(phase, 'skipped', 'Skipped');
     card.className = 'phase-card skipped';
     output.textContent = data;
+    setPipelineStep(phase, 'skipped');
   }
 }
 
@@ -960,17 +1318,13 @@ function setStatus(phase, cls, text) {
 }
 
 function openCard(phase) {
-  const body = document.getElementById('body-' + phase);
-  const header = document.querySelector('#card-' + phase + ' .phase-header');
-  body.classList.add('open');
-  header.classList.add('open');
+  document.getElementById('body-' + phase).classList.add('open');
+  document.querySelector('#card-' + phase + ' .phase-header').classList.add('open');
 }
 
 function toggleCard(phase) {
-  const body = document.getElementById('body-' + phase);
-  const header = document.querySelector('#card-' + phase + ' .phase-header');
-  body.classList.toggle('open');
-  header.classList.toggle('open');
+  document.getElementById('body-' + phase).classList.toggle('open');
+  document.querySelector('#card-' + phase + ' .phase-header').classList.toggle('open');
 }
 
 function showVerdict(text) {
@@ -980,7 +1334,7 @@ function showVerdict(text) {
   } else if (text.includes('NO-GO') || text.includes('NO GO')) {
     badge.innerHTML = '<div class="verdict-badge nogo">🚫 NO-GO — Find Another City</div>';
   } else if (text.includes('BORDERLINE')) {
-    badge.innerHTML = '<div class="verdict-badge borderline">⚠️ BORDERLINE — Review Carefully</div>';
+    badge.innerHTML = '<div class="verdict-badge borderline">⚠️ Borderline — Review Carefully</div>';
   }
 }
 
@@ -988,29 +1342,20 @@ function copyOutput(phase) {
   const text = outputs[phase] || document.getElementById('output-' + phase).textContent;
   navigator.clipboard.writeText(text).then(() => {
     const btn = document.querySelector(`#card-${phase} .copy-btn`);
-    btn.textContent = 'Copied!';
+    btn.textContent = '✓ Copied';
     btn.classList.add('copied');
     setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
   });
 }
 
-function updateInfo(msg) {
-  document.getElementById('infoText').textContent = msg;
-}
+function updateInfo(msg) { document.getElementById('infoText').textContent = msg; }
 
 function phaseLabel(p) {
-  const labels = {
-    keywords: 'Keyword Research',
-    cities: 'City Selection',
-    competitors: 'Competitor Identification',
-    analysis: 'Market Analysis',
-    prospects: 'Prospect List',
-    adcopy: 'Ad Copy',
-  };
-  return labels[p] || p;
+  return { keywords:'Keyword Research', cities:'City Selection', competitors:'Competitor ID',
+           analysis:'Due Diligence', prospects:'Prospect List', adcopy:'Ad Copy' }[p] || p;
 }
 
-// ─── Structured Renderers ──────────────────────────────────────────────
+// ─── Structured Renderers ────────────────────────────────────────────────────
 
 function renderPhaseOutput(phase, text) {
   if (phase === 'adcopy')    return renderAdCopy(text);
@@ -1073,18 +1418,21 @@ function getField(block, field) {
   return m ? m[1].trim() : '';
 }
 
-function cleanQ(s) { return s.replace(/^["'“”]+|["'“”]+$/g, '').trim(); }
+function cleanQ(s) { return s.replace(/^["'""]+|["'""]+$/g, '').trim(); }
 
-// ── Ad Copy ──────────────────────────────────────────────────────────────
+function extractLine(text, pattern) {
+  const m = text.match(pattern);
+  return m ? m[1].trim() : null;
+}
+
+// ── Ad Copy ──────────────────────────────────────────────────────────────────
 
 function renderAdCopy(text) {
-  const fbIdx  = text.search(/FACEBOOK\s*(?:\(META\))?\s*ADS?/i);
+  const fbIdx      = text.search(/FACEBOOK\s*(?:\(META\))?\s*ADS?/i);
   const googleText = fbIdx > 0 ? text.slice(0, fbIdx) : text;
-  const fbText     = fbIdx > 0 ? text.slice(fbIdx)    : '';
-
+  const fbText     = fbIdx > 0 ? text.slice(fbIdx) : '';
   const html = [];
 
-  // Google section
   const h1 = extractLine(googleText, /^\s*H1[:\s]+(.+)/im);
   const h2 = extractLine(googleText, /^\s*H2[:\s]+(.+)/im);
   const h3 = extractLine(googleText, /^\s*H3[:\s]+(.+)/im);
@@ -1094,7 +1442,6 @@ function renderAdCopy(text) {
   if (h1 || h2 || h3 || d1 || d2) {
     html.push('<div class="rendered-section">');
     html.push('<div class="rendered-section-title">🔍 Google Smart Campaign</div>');
-
     if (h1 || h2 || h3) {
       html.push('<div class="copy-group-label">Headlines <span class="copy-rule">— TITLE CASE · max 30 chars each</span></div>');
       if (h1) html.push(copyBox('H1', cleanQ(h1), 30));
@@ -1106,7 +1453,6 @@ function renderAdCopy(text) {
       if (d1) html.push(copyBox('D1', cleanQ(d1), 90));
       if (d2) html.push(copyBox('D2', cleanQ(d2), 90));
     }
-
     const kwm = googleText.match(/KEYWORD THEMES?[^:]*:([\s\S]+?)(?:SETTINGS:|FACEBOOK|$)/i);
     if (kwm) {
       html.push('<div class="copy-group-label">Keyword Themes</div>');
@@ -1115,12 +1461,9 @@ function renderAdCopy(text) {
     html.push('</div>');
   }
 
-  // Facebook section
   if (fbText) {
     html.push('<div class="rendered-section">');
     html.push('<div class="rendered-section-title">📘 Facebook (Meta) Ads</div>');
-
-    // Primary texts
     const varLabels = ['Pain / Price angle', 'Personal / Local angle', 'Urgency / Value angle'];
     const varPat = /Variation\s+\d[^\n]*\n([\s\S]+?)(?=Variation\s+\d|HEADLINES?|INSTANT FORM|$)/gi;
     let varM, varIdx = 0;
@@ -1132,69 +1475,51 @@ function renderAdCopy(text) {
         varIdx++;
       }
     }
-
-    // Headlines
     const hlSection = fbText.match(/HEADLINES?[^:]*:([\s\S]+?)(?:INSTANT FORM|CTA:|$)/i);
     if (hlSection) {
-      const hls = [];
-      const hlPat = /^\s*\d\.\s*"?(.+?)"?\s*$/gm;
-      let hlM;
+      const hls = []; const hlPat = /^\s*\d\.\s*"?(.+?)"?\s*$/gm; let hlM;
       while ((hlM = hlPat.exec(hlSection[1])) !== null) hls.push(hlM[1].trim());
       if (hls.length) {
         html.push('<div class="copy-group-label">Headlines</div>');
         hls.forEach((h, i) => html.push(copyBox(`H${i+1}`, h, null)));
       }
     }
-
-    // Instant form
     const formM = fbText.match(/INSTANT FORM[^:]*:([\s\S]+?)$/i);
     if (formM) {
       html.push('<div class="copy-group-label">Instant Form Setup</div>');
       html.push(`<div class="info-block">${escHtml(formM[1].trim())}</div>`);
     }
-
     html.push('</div>');
   }
 
   return html.length ? html.join('') : null;
 }
 
-function extractLine(text, pattern) {
-  const m = text.match(pattern);
-  return m ? m[1].trim() : null;
-}
-
-// ── Prospects ─────────────────────────────────────────────────────────────
+// ── Prospects ─────────────────────────────────────────────────────────────────
 
 function renderProspects(text) {
   const blocks = text.split(/\n(?=#\d+\s*[—\-])/);
   const cards  = [];
-
   for (const block of blocks) {
     const b  = block.trim();
     if (!b.match(/^#\d+/)) continue;
     const nm = b.match(/^#(\d+)\s*[—\-]\s*(.+)/);
     if (!nm) continue;
-
-    const num     = nm[1];
-    const name    = nm[2].trim();
-    const website = getField(b, 'Website');
-    const phone   = getField(b, 'Phone');
+    const num      = nm[1];
+    const name     = nm[2].trim();
+    const website  = getField(b, 'Website');
+    const phone    = getField(b, 'Phone');
     const foundVia = getField(b, 'Found Via');
-    const owner   = getField(b, 'Owner');
-    const notes   = getField(b, 'Notes');
-
-    const badge = foundVia ? fvBadge(foundVia) : '';
-
+    const owner    = getField(b, 'Owner');
+    const notes    = getField(b, 'Notes');
+    const badge    = foundVia ? fvBadge(foundVia) : '';
     const phoneHtml = phone
       ? `<a href="tel:${phone.replace(/\D/g,'')}" class="prospect-phone">${escHtml(phone)}</a>` : '';
-
     let siteHtml = '';
     if (website && !/^(n\/a|unknown|no website)$/i.test(website.trim())) {
       const href = /^https?:\/\//.test(website) ? website : 'https://' + website;
       siteHtml = `<a href="${href}" target="_blank" rel="noopener" class="prospect-link">${escHtml(website)}</a>`;
     }
-
     cards.push(`<div class="prospect-card">
       <div class="prospect-header">
         <span class="prospect-num">#${num}</span>
@@ -1209,7 +1534,6 @@ function renderProspects(text) {
       </div>
     </div>`);
   }
-
   return cards.length ? `<div class="prospects-grid">${cards.join('')}</div>` : null;
 }
 
@@ -1217,25 +1541,19 @@ function fvBadge(fv) {
   const l = fv.toLowerCase();
   let cls = 'fvb-default';
   if (l.includes('google ads') || l.includes('google ad')) cls = 'fvb-google';
-  else if (l.includes('homeadvisor'))   cls = 'fvb-ha';
-  else if (l.includes('angi'))          cls = 'fvb-angi';
-  else if (l.includes('thumbtack'))     cls = 'fvb-tt';
-  else if (l.includes('yelp'))          cls = 'fvb-yelp';
+  else if (l.includes('homeadvisor')) cls = 'fvb-ha';
+  else if (l.includes('angi'))        cls = 'fvb-angi';
+  else if (l.includes('thumbtack'))   cls = 'fvb-tt';
+  else if (l.includes('yelp'))        cls = 'fvb-yelp';
   return `<span class="found-via-badge ${cls}">${escHtml(fv)}</span>`;
 }
 
-// ── Due Diligence ────────────────────────────────────────────────────────
+// ── Due Diligence ─────────────────────────────────────────────────────────────
 
 function renderDueDiligence(text) {
   const html = [];
-
-  // Reasoning summary
   const rM = text.match(/REASONING[:\s]+(.+?)(?=\nCONTENT BENCHMARK|\n[─═]{4}|$)/is);
-  if (rM) {
-    html.push(`<div class="dd-reasoning"><strong>Reasoning:</strong> ${escHtml(rM[1].trim())}</div>`);
-  }
-
-  // Competitor blocks
+  if (rM) html.push(`<div class="dd-reasoning"><strong>Reasoning:</strong> ${escHtml(rM[1].trim())}</div>`);
   const parts = text.split(/\n(?=COMPETITOR\s+\d)/i).filter(b => /COMPETITOR\s+\d/i.test(b));
   if (parts.length) {
     html.push('<div class="comp-grid">');
@@ -1250,13 +1568,11 @@ function renderDueDiligence(text) {
       const compNum  = titleM ? titleM[1] : '';
       const compName = titleM ? titleM[2].trim() : '';
       const noSite   = /NO WEBSITE/i.test(domain);
-
       html.push(`<div class="comp-card">
         <div class="comp-header">
           <span class="comp-num">Competitor ${compNum}</span>
           <span class="comp-name">${escHtml(compName)}</span>
-          ${noSite
-            ? '<span class="no-website-flag">NO WEBSITE ✅</span>'
+          ${noSite ? '<span class="no-website-flag">NO WEBSITE ✅</span>'
             : (domain ? `<span class="comp-domain">${escHtml(domain)}</span>` : '')}
         </div>
         <div class="comp-metrics">
@@ -1270,17 +1586,13 @@ function renderDueDiligence(text) {
     }
     html.push('</div>');
   }
-
   return html.length ? html.join('') : null;
 }
 
 function mRow(label, value) {
   if (!value) return '';
   const cls = mCls(value);
-  return `<div class="metric-row ${cls}">
-    <span class="metric-label">${label}</span>
-    <span class="metric-val">${escHtml(value)}</span>
-  </div>`;
+  return `<div class="metric-row ${cls}"><span class="metric-label">${label}</span><span class="metric-val">${escHtml(value)}</span></div>`;
 }
 
 function mCls(v) {
@@ -1296,14 +1608,14 @@ function threatCls(v) {
   return 'threat-mod';
 }
 
+// ── Export ────────────────────────────────────────────────────────────────────
+
 async function exportProspects() {
-  const btn = document.getElementById('exportBtn');
+  const btn  = document.getElementById('exportBtn');
   const text = outputs['prospects'] || '';
   if (!text) return;
-
   btn.disabled = true;
   btn.textContent = 'Exporting...';
-
   try {
     const resp = await fetch('/api/export-prospects', {
       method: 'POST',
@@ -1311,23 +1623,17 @@ async function exportProspects() {
       body: JSON.stringify({
         text,
         niche: lastRequest ? lastRequest.niche : '',
-        city: lastRequest ? (lastRequest.city || '') : '',
+        city:  lastRequest ? (lastRequest.city || '') : '',
         state: lastRequest ? lastRequest.state : '',
       }),
     });
-
-    if (!resp.ok) {
-      const err = await resp.json();
-      alert('Export failed: ' + (err.error || resp.statusText));
-      return;
-    }
-
+    if (!resp.ok) { const err = await resp.json(); alert('Export failed: ' + (err.error || resp.statusText)); return; }
     const blob = await resp.blob();
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    const cd = resp.headers.get('Content-Disposition') || '';
-    const fnMatch = cd.match(/filename="([^"]+)"/);
-    a.download = fnMatch ? fnMatch[1] : 'prospects.xlsx';
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    const cd   = resp.headers.get('Content-Disposition') || '';
+    const fnM  = cd.match(/filename="([^"]+)"/);
+    a.download = fnM ? fnM[1] : 'prospects.xlsx';
     a.href = url;
     a.click();
     URL.revokeObjectURL(url);
