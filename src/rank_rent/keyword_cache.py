@@ -1,7 +1,7 @@
 # Pre-loaded keyword lists for known niches.
-# Phase 1 uses these instead of making Semrush API calls.
+# Phase 1 uses these instead of making Ahrefs API calls.
 # Volumes are national figures — stable enough to cache.
-# CPC is NOT cached. It is always looked up fresh per city in Phase 2 via Semrush City Keyword Check.
+# CPC is NOT cached. It is always looked up fresh per city in Phase 2 via Ahrefs City Keyword Check.
 
 KEYWORD_CACHE: dict[str, str] = {
 
