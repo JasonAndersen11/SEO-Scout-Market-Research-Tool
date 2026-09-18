@@ -16,13 +16,13 @@ def keyword_research_task(agent, niche: str) -> Task:
         description=f"""
 Build the master keyword list for the '{niche}' niche. Follow Flat Fee Mastery rules exactly.
 
-STEP 1 — Use Ahrefs Related Keywords tool to search '{niche}' nationally. Get top keywords by volume.
+STEP 1 — Use Semrush Related Keywords tool to search '{niche}' nationally. Get top keywords by volume.
 
-STEP 2 — Also search each sub-service separately using Ahrefs Related Keywords:
+STEP 2 — Also search each sub-service separately using Semrush Related Keywords:
 Sub-services for {niche}: {subs}
 Search each one individually to get their volumes and CPCs.
 
-STEP 3 — Use Ahrefs Keyword Lookup to verify volume + CPC for the best candidates.
+STEP 3 — Use Semrush Keyword Lookup to verify volume + CPC for the best candidates.
 
 STEP 4 — Narrow to 5–7 CORE keywords (highest volume, highest intent, people ready to hire NOW).
 
@@ -101,7 +101,7 @@ PREFER: Cities 50,000–250,000 population
 
 PROCESS — follow this EXACTLY:
 1. Take the PRIMARY KEYWORD from the keyword output above
-2. Check cities ONE AT A TIME in the order listed above using Ahrefs City Keyword Check:
+2. Check cities ONE AT A TIME in the order listed above using Semrush City Keyword Check:
    - keyword = the PRIMARY KEYWORD
    - city = the city name
    - state = {state} (2-letter abbreviation)
@@ -275,7 +275,7 @@ METRIC 1 — DOMAIN AGE:
   ✅ 0–2 years = EASY | ⚠️ 2–5 years = Moderate | ⚠️ 5–10 years = Harder | 🚫 10+ years = Red Flag
 
 METRIC 2 — BACKLINKS:
-  Use Ahrefs Backlinks tool. Record total backlinks and referring domains.
+  Use Semrush Backlinks tool. Record total backlinks and referring domains.
   ✅ 0–10 = Very Weak (easy to beat) | ⚠️ 11–50 = Moderate | ⚠️ 51–97 = Heavy | 🚫 98+ = Red Flag
   Note: foreign/spammy links are worthless — quality matters more than count.
 
