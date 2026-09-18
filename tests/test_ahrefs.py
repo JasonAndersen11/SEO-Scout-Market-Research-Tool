@@ -2,6 +2,9 @@ import os
 import unittest
 from unittest.mock import patch
 
+from fastapi.testclient import TestClient
+
+from main import app
 from src.rank_rent.tools.ahrefs import (
     AhrefsBacklinksTool,
     AhrefsCityKeywordTool,
@@ -124,6 +127,16 @@ class ToolTests(unittest.TestCase):
         out = AhrefsDomainTool()._run("competitor.com")
         self.assertIn("auth failed", out)
         self.assertNotIn("GREEN FLAG", out)
+
+
+class HealthTests(unittest.TestCase):
+    def test_health_reports_ahrefs_not_semrush(self):
+        client = TestClient(app)
+        resp = client.get("/api/health")
+        self.assertEqual(resp.status_code, 200)
+        keys = resp.json()["api_keys_loaded"]
+        self.assertIn("ahrefs", keys)
+        self.assertNotIn("semrush", keys)
 
 
 if __name__ == "__main__":

@@ -29,8 +29,8 @@ Runs a 6-phase research pipeline to find and validate rank-and-rent opportunitie
 ### 1. Clone the repo
 
 ```bash
-git clone https://github.com/JasonAndersen11/rank-rent-crew.git
-cd rank-rent-crew
+git clone https://github.com/JasonAndersen11/SEO-Scout-Market-Research-Tool.git
+cd SEO-Scout-Market-Research-Tool
 ```
 
 ### 2. Install Python dependencies
