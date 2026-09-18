@@ -203,7 +203,7 @@ async def export_prospects(req: ExportRequest):
 async def health():
     keys = {
         "anthropic": bool(os.getenv("ANTHROPIC_API_KEY")),
-        "semrush": bool(os.getenv("SEMRUSH_API_KEY")),
+        "ahrefs": bool(os.getenv("AHREFS_API_KEY")),
         "serper": bool(os.getenv("SERPER_API_KEY")),
     }
     return {"status": "ok", "api_keys_loaded": keys}

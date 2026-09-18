@@ -18,12 +18,12 @@ from .tasks import (
     prospect_building_task,
     ad_copy_task,
 )
-from .tools.semrush import (
-    SemrushRelatedKeywordsTool,
-    SemrushKeywordTool,
-    SemrushCityKeywordTool,
-    SemrushDomainTool,
-    SemrushBacklinksTool,
+from .tools.ahrefs import (
+    AhrefsRelatedKeywordsTool,
+    AhrefsKeywordTool,
+    AhrefsCityKeywordTool,
+    AhrefsDomainTool,
+    AhrefsBacklinksTool,
 )
 from .tools.serper_search import SerperLocationSearchTool, SerperMapsSearchTool, SerperAdsSearchTool
 from .tools.domain_analyzer import DomainAgeTool, WebsiteContentTool
@@ -44,11 +44,11 @@ class RankRentPipeline:
         self.cb = update_callback or (lambda phase, status, data: None)
 
         # Instantiate all tools once
-        self.t_related = SemrushRelatedKeywordsTool()
-        self.t_keyword = SemrushKeywordTool()
-        self.t_city = SemrushCityKeywordTool()
-        self.t_domain = SemrushDomainTool()
-        self.t_backlinks = SemrushBacklinksTool()
+        self.t_related = AhrefsRelatedKeywordsTool()
+        self.t_keyword = AhrefsKeywordTool()
+        self.t_city = AhrefsCityKeywordTool()
+        self.t_domain = AhrefsDomainTool()
+        self.t_backlinks = AhrefsBacklinksTool()
         self.t_maps = SerperMapsSearchTool()
         self.t_ads = SerperAdsSearchTool()
         self.t_search = SerperLocationSearchTool()
