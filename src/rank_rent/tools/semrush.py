@@ -194,43 +194,13 @@ class SemrushCityKeywordTool(BaseTool):
             except Exception:
                 continue
 
-        # Semrush returned nothing (likely zero API units).
-        # Stub realistic-looking varied data so the pipeline can be tested end-to-end.
-        # Remove this block and rerun once Semrush units are restocked.
-        seed = sum(ord(c) for c in city)
-        bucket = seed % 5   # 0-4
-
-        if bucket == 0:
-            # FAIL — volume too low
-            vol, cpc = 18, 1.85
-        elif bucket == 1:
-            # FAIL — CPC too high
-            vol, cpc = 55, 6.20
-        elif bucket == 2:
-            # FAIL — $0 CPC
-            vol, cpc = 40, 0.00
-        elif bucket == 3:
-            # PASS — strong
-            vol, cpc = 70, 3.10
-        else:
-            # PASS — borderline
-            vol, cpc = 40, 1.45
-
-        if vol < 30:
-            status = f"FAIL — volume too low ({vol} < 30 minimum)"
-        elif cpc == 0.0:
-            status = "FAIL — $0 CPC means no commercial value"
-        elif cpc >= 5.0:
-            status = f"FAIL — CPC ${cpc:.2f} too high (max $4.99)"
-        else:
-            status = "PASS ✅"
-
+        # Semrush returned nothing (likely zero API units or an API error).
+        # Never fabricate data — report the failure so the city is not judged on fake numbers.
         return (
             f"City: {city}, {state}\n"
             f"Keyword: {keyword} {city} {state}\n"
-            f"Monthly Volume: {vol} [STUB]\n"
-            f"CPC: ${cpc:.2f} [STUB]\n"
-            f"Result: {status} [STUB — rerun after restocking Semrush units]"
+            "Result: ERROR — Semrush returned no data (check API units/key). "
+            "Do NOT treat this as PASS or FAIL; retry later."
         )
 
 
