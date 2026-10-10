@@ -41,6 +41,31 @@ def _leads_path(niche: str, city: str, state: str) -> Path:
     return LEADS_DIR / f"{slug}.json"
 
 
+def _load_all_leads() -> list[dict]:
+    leads = []
+    for f in sorted(LEADS_DIR.glob("*.json")) if LEADS_DIR.exists() else []:
+        try:
+            leads.append(json.loads(f.read_text(encoding="utf-8")))
+        except (OSError, ValueError):
+            continue
+    return leads
+
+
+def _build_master_workbook():
+    from src.rank_rent.leads_export import build_workbook
+    from src.rank_rent.city_cache import _load as load_city_cache
+    return build_workbook(_load_all_leads(), load_city_cache(), _parse_prospects)
+
+
+EXPORTS_DIR = Path(__file__).parent / "exports"
+MASTER_XLSX = EXPORTS_DIR / "Rank-Rent Leads.xlsx"
+
+
+def _save_master_workbook() -> None:
+    EXPORTS_DIR.mkdir(exist_ok=True)
+    _build_master_workbook().save(MASTER_XLSX)
+
+
 def _save_leads(niche: str, city: str, state: str, text: str) -> None:
     LEADS_DIR.mkdir(exist_ok=True)
     payload = {
@@ -79,7 +104,8 @@ async def run_research(request: ResearchRequest):
         if phase == "prospects" and status == "complete" and request.city and _parse_prospects(data):
             try:
                 _save_leads(request.niche, request.city, request.state, data)
-            except OSError:
+                _save_master_workbook()
+            except Exception:
                 pass
         update_queue.put({"phase": phase, "status": status, "data": data})
 
@@ -143,6 +169,18 @@ async def get_leads(niche: str, city: str, state: str):
     except (OSError, ValueError):
         return JSONResponse({"found": False})
     return JSONResponse({"found": True, **data})
+
+
+@app.get("/api/export-all")
+async def export_all():
+    buf = io.BytesIO()
+    _build_master_workbook().save(buf)
+    buf.seek(0)
+    return StreamingResponse(
+        buf,
+        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        headers={"Content-Disposition": 'attachment; filename="Rank-Rent Leads.xlsx"'},
+    )
 
 
 class ExportRequest(BaseModel):
