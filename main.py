@@ -6,6 +6,7 @@ import json
 import queue
 import threading
 import asyncio
+from datetime import datetime
 from pathlib import Path
 from typing import Optional
 
@@ -31,6 +32,24 @@ app.mount("/static", StaticFiles(directory=str(static_dir)), name="static")
 # Single global stop flag — only one pipeline runs at a time
 _stop_event = threading.Event()
 
+# Saved prospect lists, one JSON file per niche/city/state
+LEADS_DIR = Path(__file__).parent / "leads"
+
+
+def _leads_path(niche: str, city: str, state: str) -> Path:
+    slug = re.sub(r"[^a-z0-9]+", "_", f"{niche}_{city}_{state}".lower()).strip("_")
+    return LEADS_DIR / f"{slug}.json"
+
+
+def _save_leads(niche: str, city: str, state: str, text: str) -> None:
+    LEADS_DIR.mkdir(exist_ok=True)
+    payload = {
+        "niche": niche, "city": city, "state": state.upper(),
+        "saved_at": datetime.now().isoformat(timespec="seconds"),
+        "text": text,
+    }
+    _leads_path(niche, city, state).write_text(json.dumps(payload, indent=2), encoding="utf-8")
+
 
 class ResearchRequest(BaseModel):
     niche: str
@@ -55,6 +74,15 @@ async def run_research(request: ResearchRequest):
     _stop_event.clear()
     update_queue: queue.Queue = queue.Queue()
 
+    def on_update(phase, status, data):
+        # Keep the prospect list so it can be reopened later from the market cards
+        if phase == "prospects" and status == "complete" and request.city and _parse_prospects(data):
+            try:
+                _save_leads(request.niche, request.city, request.state, data)
+            except OSError:
+                pass
+        update_queue.put({"phase": phase, "status": status, "data": data})
+
     def run_pipeline():
         try:
             from src.rank_rent.crew import RankRentPipeline, StoppedError
@@ -65,9 +93,7 @@ async def run_research(request: ResearchRequest):
                 city=request.city or None,
                 stop_event=_stop_event,
                 resume_state=request.resume_state or {},
-                update_callback=lambda phase, status, data: update_queue.put(
-                    {"phase": phase, "status": status, "data": data}
-                ),
+                update_callback=on_update,
             )
             result = pipeline.run()
             if result.get("no_cities"):
@@ -105,6 +131,18 @@ async def run_research(request: ResearchRequest):
             "Connection": "keep-alive",
         },
     )
+
+
+@app.get("/api/leads")
+async def get_leads(niche: str, city: str, state: str):
+    path = _leads_path(niche, city, state)
+    if not path.exists():
+        return JSONResponse({"found": False})
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return JSONResponse({"found": False})
+    return JSONResponse({"found": True, **data})
 
 
 class ExportRequest(BaseModel):

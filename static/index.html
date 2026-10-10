@@ -897,6 +897,19 @@ header {
 }
 .market-card:hover { border-color: var(--border-2); transform: translateY(-2px); }
 .market-card.pass { border-left: 3px solid var(--green); }
+.market-card.clickable { cursor: pointer; }
+.market-card.clickable::after { content: "View leads →"; display: block; margin-top: 10px; font-size: 12px; color: var(--accent-2); }
+.leads-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.65); display: none; align-items: center; justify-content: center; z-index: 100; padding: 16px; }
+.leads-overlay.show { display: flex; }
+.leads-modal { background: var(--surface-2); border: 1px solid var(--border-2); border-radius: var(--radius-sm); width: 100%; max-width: 720px; max-height: 85vh; display: flex; flex-direction: column; }
+.leads-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 16px 20px; border-bottom: 1px solid var(--border); }
+.leads-title { font-size: 16px; font-weight: 700; color: var(--text-1); }
+.leads-sub { font-size: 12px; color: var(--text-2); margin-top: 2px; }
+.leads-close { background: none; border: none; color: var(--text-2); font-size: 22px; cursor: pointer; }
+.leads-body { padding: 16px 20px; overflow-y: auto; }
+.leads-empty { color: var(--text-2); font-size: 14px; line-height: 1.5; }
+.leads-foot { display: flex; gap: 10px; padding: 14px 20px; border-top: 1px solid var(--border); }
+
 
 .market-header {
   display: flex;
@@ -1067,10 +1080,10 @@ header {
     <div class="landing-section">
       <div class="landing-section-header">
         <span class="landing-section-label">Recent Markets Analyzed</span>
-        <span class="landing-section-sub">Live Semrush data — cached results</span>
+        <span class="landing-section-sub">Live Semrush data — click a market to see its leads</span>
       </div>
       <div class="markets-grid">
-        <div class="market-card pass">
+        <div class="market-card pass clickable" role="button" tabindex="0" data-niche="tree service" data-city="Monroe" data-state="LA" onclick="openLeads(this)" onkeydown="if(event.key==='Enter')openLeads(this)">
           <div class="market-header">
             <span class="market-niche">Tree Service</span>
             <span class="market-verdict pass-badge">✅ PASS</span>
@@ -1081,7 +1094,7 @@ header {
             <div class="mmet"><span class="mmet-label">CPC</span><span class="mmet-val green">$2.80</span></div>
           </div>
         </div>
-        <div class="market-card pass">
+        <div class="market-card pass clickable" role="button" tabindex="0" data-niche="tree service" data-city="Jackson" data-state="TN" onclick="openLeads(this)" onkeydown="if(event.key==='Enter')openLeads(this)">
           <div class="market-header">
             <span class="market-niche">Tree Service</span>
             <span class="market-verdict pass-badge">✅ PASS</span>
@@ -1092,7 +1105,7 @@ header {
             <div class="mmet"><span class="mmet-label">CPC</span><span class="mmet-val green">$2.31</span></div>
           </div>
         </div>
-        <div class="market-card pass">
+        <div class="market-card pass clickable" role="button" tabindex="0" data-niche="tree service" data-city="Lake Charles" data-state="LA" onclick="openLeads(this)" onkeydown="if(event.key==='Enter')openLeads(this)">
           <div class="market-header">
             <span class="market-niche">Tree Service</span>
             <span class="market-verdict pass-badge">✅ PASS</span>
@@ -1103,7 +1116,7 @@ header {
             <div class="mmet"><span class="mmet-label">CPC</span><span class="mmet-val green">$2.70</span></div>
           </div>
         </div>
-        <div class="market-card pass">
+        <div class="market-card pass clickable" role="button" tabindex="0" data-niche="tree service" data-city="Cookeville" data-state="TN" onclick="openLeads(this)" onkeydown="if(event.key==='Enter')openLeads(this)">
           <div class="market-header">
             <span class="market-niche">Tree Service</span>
             <span class="market-verdict pass-badge">✅ PASS</span>
@@ -1118,6 +1131,21 @@ header {
     </div>
 
   </div><!-- /landingContent -->
+
+
+  <div class="leads-overlay" id="leadsOverlay" onclick="if(event.target===this)closeLeads()">
+    <div class="leads-modal">
+      <div class="leads-head">
+        <div><div class="leads-title" id="leadsTitle"></div><div class="leads-sub" id="leadsSub"></div></div>
+        <button class="leads-close" onclick="closeLeads()" aria-label="Close">×</button>
+      </div>
+      <div class="leads-body" id="leadsBody"></div>
+      <div class="leads-foot">
+        <button class="export-btn" id="leadsExportBtn" onclick="exportLeads()" style="display:none;">⬇ Export Excel</button>
+        <button class="export-btn" id="leadsRunBtn" onclick="runForLeads()">▶ Run research for this city</button>
+      </div>
+    </div>
+  </div>
 
   <!-- Pipeline Progress Tracker -->
   <div class="pipeline-tracker" id="pipelineTracker">
@@ -1859,23 +1887,25 @@ function threatCls(v) {
 // ── Export ────────────────────────────────────────────────────────────────────
 
 async function exportProspects() {
-  const btn  = document.getElementById('exportBtn');
   const text = outputs['prospects'] || '';
   if (!text) return;
+  await downloadProspects(text,
+    lastRequest ? lastRequest.niche : '',
+    lastRequest ? (lastRequest.city || '') : '',
+    lastRequest ? lastRequest.state : '',
+    document.getElementById('exportBtn'));
+}
+
+async function downloadProspects(text, niche, city, state, btn) {
   btn.disabled = true;
   btn.textContent = 'Exporting...';
   try {
     const resp = await fetch('/api/export-prospects', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        text,
-        niche: lastRequest ? lastRequest.niche : '',
-        city:  lastRequest ? (lastRequest.city || '') : '',
-        state: lastRequest ? lastRequest.state : '',
-      }),
+      body: JSON.stringify({ text, niche, city, state }),
     });
-    if (!resp.ok) { const err = await resp.json(); alert('Export failed: ' + (err.error || resp.statusText)); return; }
+    if (!resp.ok) { const err = await resp.json(); alert('Export failed: ' + (err.error || resp.statusText)); btn.textContent = '⬇ Export Excel'; btn.disabled = false; return; }
     const blob = await resp.blob();
     const url  = URL.createObjectURL(blob);
     const a    = document.createElement('a');
@@ -1892,6 +1922,55 @@ async function exportProspects() {
     btn.textContent = '⬇ Export Excel';
     btn.disabled = false;
   }
+}
+
+let currentLeads = null;
+
+async function openLeads(el) {
+  const { niche, city, state } = el.dataset;
+  currentLeads = { niche, city, state, text: '' };
+  const label = niche.replace(/\b\w/g, c => c.toUpperCase());
+  document.getElementById('leadsTitle').textContent = `${label} — ${city}, ${state}`;
+  document.getElementById('leadsSub').textContent = '';
+  document.getElementById('leadsBody').innerHTML = '<div class="leads-empty">Loading…</div>';
+  document.getElementById('leadsExportBtn').style.display = 'none';
+  document.getElementById('leadsRunBtn').textContent = '▶ Run research for this city';
+  document.getElementById('leadsOverlay').classList.add('show');
+  try {
+    const q = new URLSearchParams({ niche, city, state });
+    const data = await (await fetch('/api/leads?' + q)).json();
+    const html = data.found ? renderProspects(data.text) : null;
+    if (html) {
+      currentLeads.text = data.text;
+      document.getElementById('leadsSub').textContent = 'Saved ' + data.saved_at.replace('T', ' ');
+      document.getElementById('leadsBody').innerHTML = html;
+      document.getElementById('leadsExportBtn').style.display = 'inline-block';
+      document.getElementById('leadsRunBtn').textContent = '↻ Re-run research';
+    } else {
+      document.getElementById('leadsBody').innerHTML =
+        '<div class="leads-empty">No leads saved for this market yet. Run research to find businesses already paying for ads in ' +
+        escHtml(city) + ', ' + escHtml(state) + '. This uses Serper credits and a few Semrush units.</div>';
+    }
+  } catch (e) {
+    document.getElementById('leadsBody').innerHTML = '<div class="leads-empty">Could not load leads: ' + escHtml(e.message) + '</div>';
+  }
+}
+
+function closeLeads() { document.getElementById('leadsOverlay').classList.remove('show'); }
+
+function runForLeads() {
+  if (!currentLeads) return;
+  document.getElementById('niche').value = currentLeads.niche;
+  document.getElementById('state').value = currentLeads.state;
+  document.getElementById('city').value = currentLeads.city;
+  closeLeads();
+  startResearch();
+}
+
+async function exportLeads() {
+  if (!currentLeads || !currentLeads.text) return;
+  await downloadProspects(currentLeads.text, currentLeads.niche, currentLeads.city, currentLeads.state,
+    document.getElementById('leadsExportBtn'));
 }
 </script>
 </body>
