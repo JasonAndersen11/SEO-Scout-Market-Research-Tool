@@ -1774,6 +1774,7 @@ function renderAdCopy(text) {
 // ── Prospects ─────────────────────────────────────────────────────────────────
 
 function renderProspects(text) {
+  text = text.replace(/\*+/g, '').replace(/^[ \t]*[-•][ \t]+/gm, '');
   const blocks = text.split(/\n(?=#\d+\s*[—\-])/);
   const cards  = [];
   for (const block of blocks) {

@@ -193,6 +193,9 @@ class ExportRequest(BaseModel):
 def _parse_prospects(text: str) -> list[dict]:
     """Parse Phase 5 prospect text into a list of row dicts."""
     prospects = []
+    # Claude often returns markdown ("**#1 — Name**", "- **Phone:** ..."); strip it first
+    text = re.sub(r"\*+", "", text)
+    text = re.sub(r"(?m)^[ \t]*[-•][ \t]+", "", text)
     # Split on prospect blocks: lines starting with #N —
     blocks = re.split(r'\n(?=#\d+\s*[—\-])', text)
     for block in blocks:
