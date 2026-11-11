@@ -1,0 +1,9 @@
+fastapi
+uvicorn[standard]
+crewai[anthropic]
+anthropic
+openpyxl
+python-dotenv
+requests
+beautifulsoup4
+python-whois
